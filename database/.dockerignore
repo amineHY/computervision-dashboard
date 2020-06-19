@@ -1,0 +1,13 @@
+# Pipfile
+# Pipefile.lock
+# Profile
+.devcontiainer
+.vscode
+.github
+.git
+venv/
+Pipfile
+Pipefile.lock
+Procfile
+setup.sh
+other/

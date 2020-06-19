@@ -1,0 +1,11 @@
+
+# *.csv
+*.pyc
+*.avi
+
+
+# Folder to ignore
+venv/
+heroku/
+other/
+media/
