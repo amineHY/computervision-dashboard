@@ -43,7 +43,7 @@ class GUI():
 
         # ------------------------------------a----------------------------
 
-    def common_config(self, title='Computer Vision Dashboard '):  # (Beta version :golf:)
+    def common_config(self, title='Computer Vision Dashboard 🚀'):  # (Beta version :golf:)
         """
         User Interface Management: Sidebar
         """
@@ -60,13 +60,6 @@ class GUI():
         self.dataSource = st.sidebar.radio(
             'Load data from', ['Database', 'URL', 'Upload'])
 
-        # elif (self.appType == 'Video Application'):
-        #     self.dataSource = st.sidebar.radio(
-        #         'Load data', ['Database', 'URL', 'Upload'])
-
-        # else:
-        #     raise ValueError(
-        #         "Please select either 'Image Application' or 'Video Applications'")
 
         # Get the application from the GUI
         self.selectedApp = st.sidebar.selectbox(
@@ -85,15 +78,14 @@ class GUI():
             self.recordOutputVideo = False
             self.frameMax = 1
 
-        # self.displayFlag = st.sidebar.checkbox(
-        #     'Display Real-Time Results', value=True)
 
         # Update the dictionnary
         self.guiParam.update(
             dict(selectedApp=self.selectedApp,
                  appType=self.appType,
                  dataSource=self.dataSource,
-                 recordOutputVideo=self.recordOutputVideo))
+                 recordOutputVideo=self.recordOutputVideo,
+                 frameMax=self.frameMax ))
 
         # --------------------------------------------------------------------------
 
@@ -290,14 +282,14 @@ class DataManager:
                 im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
                 return im_rgb, im_byte
 
-            file_path = st.text_input('Enter the image PATH')
+            file_path = st.sidebar.text_input('Enter the image PATH')
 
             if os.path.isfile(file_path):
                 self.image, self.image_byte = load_image_from_path(
                     image_path=file_path)
 
             elif file_path == "":
-                file_path_idx = st.selectbox(
+                file_path_idx = st.sidebar.selectbox(
                     'Or select a demo image from the list', list(self.demo_image_examples.keys()))
                 file_path = self.demo_image_examples[file_path_idx]
 
@@ -318,7 +310,7 @@ class DataManager:
                 im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
                 return im_rgb, im_byte
 
-            file_path = st.file_uploader(
+            file_path = st.sidebar.file_uploader(
                 'Upload an image', type=['png', 'jpg'])
 
             if file_path != None:
@@ -340,7 +332,7 @@ class DataManager:
                 im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
                 return im_rgb, im_byte
 
-            file_path = st.text_input('Enter the image URL')
+            file_path = st.sidebar.text_input('Enter the image URL')
 
             if file_path != "":
                 self.image, self.image_byte = load_image_from_url(
@@ -348,7 +340,7 @@ class DataManager:
 
             elif file_path == "":
 
-                file_path_idx = st.selectbox(
+                file_path_idx = st.sidebar.selectbox(
                     'Or select a URL from the list', list(self.url_demo_images.keys()))
                 file_path = self.url_demo_images[file_path_idx]
 
@@ -405,9 +397,9 @@ class DataManager:
             def load_video_from_upload(file_path):
                 return None, file_path
 
-            file_path = st.file_uploader(
+            file_path = st.sidebar.file_uploader(
                 "Upload a video (200 Mo maximum) ...", type=["mp4", "mpeg", 'avi'])
-            print(file_path)
+            # print("file_path",file_path)
             if file_path != None:
                 self.video, self.video_byte = load_video_from_upload(file_path)
             elif file_path == None:
@@ -416,22 +408,23 @@ class DataManager:
 
             #------------------------------------------------------#
             #------------------------------------------------------#
+        
         elif self.guiParam["dataSource"] == 'Database':
 
             @st.cache(allow_output_mutation=True)
             def load_video_from_path(video_path):
                 isinstance(video_path, str)
                 video = cv.VideoCapture(video_path)
-                video_byte = open(video_path, "rb")
+                video_byte = open(video_path, "rb").read()
                 return video, video_byte
 
-            file_path = st.text_input(
+            file_path = st.sidebar.text_input(
                 'Enter PATH of the video')
 
             if os.path.isfile(file_path):
                 self.video, self.video_byte = load_video_from_path(file_path)
             elif file_path == "":
-                file_path_idx = st.selectbox(
+                file_path_idx = st.sidebar.selectbox(
                     'Or select a demo image from the list', list(self.demo_video_examples.keys()))
                 file_path = self.demo_video_examples[file_path_idx]
                 self.video, self.video_byte = load_video_from_path(
@@ -475,11 +468,11 @@ class DataManager:
                 video = pafy.new(video_url)
                 videoHightRes = video.getbest(preftype="mp4")
                 videoHightRes.download('demo.mp4')
-                video_byte = open('demo.mp4', 'rb')
+                video_byte = open('demo.mp4', 'rb').read()
 
                 return video, video_byte
 
-            video_url = st.text_input('Enter URL of the video')
+            video_url = st.sidebar.text_input('Enter URL of the video')
             st.info(
                 'Samples here: https://research.google.com/youtube8m/explore.html')
 
@@ -487,7 +480,7 @@ class DataManager:
                 self.video, self.video_byte = load_video_from_url(video_url)
 
             elif video_url == "":
-                video_url_idx = st.selectbox(
+                video_url_idx = st.sidebar.selectbox(
                     'Or select a URL from the list', list(self.url_demo_videos.keys()))
                 video_url = self.url_demo_videos[video_url_idx]
                 self.video, self.video_byte = load_video_from_url(video_url)
@@ -511,84 +504,91 @@ def main():
     """
     """
 
+    # get parameter for the api
+    guiParam = GUI().getGuiParameters()
+    api_param = guiParam.copy()
+    
+    # define paths
     paths = {
         "path_database": "database/",
         "path_results": "app/results/",
-        "path_model": "app/models/"
+        "path_model": "app/models/",
+        "received_data": "data_from_api/",
+
     }
-
-    guiParam = GUI().getGuiParameters()
     guiParam.update(paths)
+    
+    
+    if st.button('Send Request to inveesion-API'):
+        
+    
 
-    # Send Get Request
-    if guiParam["selectedApp"] != 'Empty':
+        # Send Request to inveesion-API
+        if guiParam["selectedApp"] != 'Empty':
 
-        print("\n[INFO] Sending Get Request ...")
+            print("\n[INFO] Sending Request to inveesion-API")
 
-        if guiParam['appType'] == 'Image Application':
-            __, image_byte = DataManager(guiParam).load_image_or_video()
-            fastapi_post_url = "http://127.0.0.1:8000/image/"
-            response = requests.post(fastapi_post_url,
-                                     params=guiParam,
-                                     files={"image": base64.b64encode(image_byte)})
+            if guiParam['appType'] == 'Image Application':
+                __, image_byte = DataManager(guiParam).load_image_or_video()
+                # fastapi_post_url = "http://127.0.0.1:8000/image/"
+                fastapi_post_url = "http://0.0.0.0:8000/image-api/"
 
-        elif guiParam['appType'] == 'Video Application':
-            video, video_byte = DataManager(guiParam).load_image_or_video()
+                # fastapi_post_url ='https://inveesion-api-nvlm2sdkvq-ew.a.run.app/image/'
+                response = requests.post(fastapi_post_url,
+                                        params=api_param,
+                                        files={"image": image_byte})
 
-            # print(type(video))
-            # print(type(video_byte))
+            elif guiParam['appType'] == 'Video Application':
+                video, video_byte = DataManager(guiParam).load_image_or_video()
 
-            # ff = "/media/amine/DATA/4K Road traffic video for object detection and tracking - free download now!-MNn9qKG2UFI.webm"
-            # video_byte = open(ff, 'rb')
+                fastapi_post_url = "http://0.0.0.0:8000/video-api/"
+                # fastapi_post_url ='https://inveesion-api-nvlm2sdkvq-ew.a.run.app/video/'
 
-            fastapi_post_url = "http://127.0.0.1:8000/video/"
-            response = requests.post(fastapi_post_url,
-                                     params=guiParam,
-                                     files={"video": video_byte})
-        print(response.url)
+                response = requests.post(fastapi_post_url,
+                                        params=api_param,
+                                        files={"video": video_byte})
+            print(response.url)
 
-        if response:
-            print('\nRequest is successful.')
-            # print("\n[INFO] API Response: ", response.json())
+            if response:
+                print('\nRequest is successful: ', response.status_code)
 
-            st.markdown("## Results")
-            res_json = response.json()['response']
-            keys = list(res_json.keys())
-            values = list(res_json.values())
+                st.markdown("## Results")
+                res_json = response.json()['response']
+                keys = list(res_json.keys())
+                values = list(res_json.values())
 
-            # display data in the frontend
-            if response.json()["media"] == "video":
+                # display data in the frontend
+                if response.json()["media"] == "image":
 
-                received_data = "data_from_api/"
-                with open(received_data+'get_demo.mp4', 'wb') as vid_byte:
-                    vid_byte.write(base64.b64decode(values[0]))
-                with open(received_data+'get_demo.csv', 'wb') as csv_byte:
-                    csv_byte.write(base64.b64decode(values[1]))
+                    # parse response and extract data (image + csv)
+                    with open(paths["received_data"]+'get_demo.png', 'wb') as im_byte:
+                        im_byte.write(base64.b64decode(values[0]))
+                    with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
+                        csv_byte.write(base64.b64decode(values[1]))
 
-                st.dataframe(pd.read_csv(received_data+'get_demo.csv'))
-                st.video(open(received_data+'get_demo.mp4', 'rb').read())
+                    st.dataframe(pd.read_csv(paths["received_data"]+'get_demo.csv'))
+                    st.image(open(paths["received_data"]+'get_demo.png', 'rb').read(),
+                            channels="BGR",  use_column_width=True)
 
-            elif response.json()["media"] == "image":
-                os.system('pwd')
-                # parse response and extract data (image + csv)
-                received_data = "data_from_api/"
-                with open(received_data+'get_demo.png', 'wb') as im_byte:
-                    im_byte.write(base64.b64decode(values[0]))
+                elif response.json()["media"] == "video":
+                    
+                    # parse response and extract data (video + csv)
+                    with open(paths["received_data"]+'get_demo.mp4', 'wb') as vid_byte:
+                        vid_byte.write(base64.b64decode(values[0]))
+                    with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
+                        csv_byte.write(base64.b64decode(values[1]))
 
-                with open(received_data+'get_demo.csv', 'wb') as csv_byte:
-                    csv_byte.write(base64.b64decode(values[1]))
+                    st.dataframe(pd.read_csv(paths["received_data"]+'get_demo.csv'))
+                    st.video(open(paths["received_data"]+'get_demo.mp4', 'rb').read())
 
-                st.dataframe(pd.read_csv(received_data+'get_demo.csv'))
-
-                st.image(open(received_data+'get_demo.png', 'rb').read(),
-                         channels="BGR",  use_column_width=True)
+            else:
+                print('\nRequest returned an error: ', response.status_code)
 
         else:
-            print('\nRequest returned an error.')
-
+            st.warning("Please select an application")
     else:
-        st.warning("Please select an application")
-
+            # st.write('Goodbye')
+        pass
 
 if __name__ == "__main__":
     main()
