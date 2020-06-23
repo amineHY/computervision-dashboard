@@ -529,20 +529,19 @@ def main():
         if guiParam['appType'] == 'Image Application':
             __, image_byte = DataManager(
                 guiParam).load_image_or_video()
-            fastapi_post_url = "http://0.0.0.0:8000/image-api/"
+            # fastapi_post_url = "http://0.0.0.0:80/image-api/"
+            fastapi_post_url = "https://api.inveesion.com/image-api/"
 
             # if st.button('Send to inveesion-API'):
-            # fastapi_post_url ='https://inveesion-api-nvlm2sdkvq-ew.a.run.app/image/'
 
-            print(api_param)
             response = requests.post(fastapi_post_url,
-                                     json=api_param,
+                                     params=api_param,
                                      files={"image": image_byte})
 
         elif guiParam['appType'] == 'Video Application':
             video, video_byte = DataManager(
                 guiParam).load_image_or_video()
-            fastapi_post_url = "http://0.0.0.0:8000/video-api/"
+            fastapi_post_url = "https://api.inveesion.com/video-api/"
             # fastapi_post_url ='https://inveesion-api-nvlm2sdkvq-ew.a.run.app/video/'
 
             response = requests.post(fastapi_post_url,
