@@ -5,6 +5,7 @@ streamlit
 numpy
 pandas
 requests
+matplotlib
 
 # Computer Vision
 opencv-python

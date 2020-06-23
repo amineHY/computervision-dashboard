@@ -60,6 +60,19 @@ class GUI():
         self.dataSource = st.sidebar.radio(
             'Load data from', ['Database', 'URL', 'Upload'])
 
+        if self.appType == 'Video Application':
+            self.recordOutputVideo = st.sidebar.checkbox(
+                'Record Video with Overlay', value=True)
+
+            self.frameFreq = st.sidebar.slider(
+                'Frame Frequency', value=15, min_value=1, max_value=60, step=1)
+            self.frameMax = st.sidebar.slider(
+                'Frames to process', value=1000, min_value=self.frameFreq, max_value=5000, step=1)
+
+        elif self.appType == 'Image Application':
+            self.recordOutputVideo = False
+            self.frameMax = 1
+            self.frameFreq = 1
 
         # Get the application from the GUI
         self.selectedApp = st.sidebar.selectbox(
@@ -68,24 +81,14 @@ class GUI():
         if self.selectedApp == 'Empty':
             st.sidebar.warning('Select an application from the list')
 
-        if self.appType == 'Video Application':
-            self.recordOutputVideo = st.sidebar.checkbox(
-                'Record Video with Overlay', value=True)
-
-            self.frameMax = st.sidebar.slider(
-                'Number of frame to process', value=10, min_value=1, max_value=100, step=1)
-        else:
-            self.recordOutputVideo = False
-            self.frameMax = 1
-
-
         # Update the dictionnary
         self.guiParam.update(
             dict(selectedApp=self.selectedApp,
                  appType=self.appType,
                  dataSource=self.dataSource,
                  recordOutputVideo=self.recordOutputVideo,
-                 frameMax=self.frameMax ))
+                 frameMax=self.frameMax,
+                 frameFreq=self.frameFreq))
 
         # --------------------------------------------------------------------------
 
@@ -180,7 +183,7 @@ class GUI():
 
         # st.sidebar.markdown("### Target Object")
         # #------------------------------------------------------#
-        # desired_object = st.sidebar.multiselect(
+        # allowedLabel = st.sidebar.multiselect(
         #     label='What object would like to detect?',
         #     options=('person', 'cars', 'cell phone', 'plane', 'fire'))
 
@@ -194,9 +197,9 @@ class GUI():
         self.guiParam.update(dict(confThresh=confThresh,
                                   nmsThresh=nmsThresh,
                                   model=model,
-                                  #   desired_object=desired_object
+                                #   allowedLabel=(allowedLabel)
                                   ))
-
+        # st.text(self.guiParam["allowedLabel"])
     # --------------------------------------------------------------------------
 
     def sidebarFireDetection(self):
@@ -408,7 +411,7 @@ class DataManager:
 
             #------------------------------------------------------#
             #------------------------------------------------------#
-        
+
         elif self.guiParam["dataSource"] == 'Database':
 
             @st.cache(allow_output_mutation=True)
@@ -507,7 +510,7 @@ def main():
     # get parameter for the api
     guiParam = GUI().getGuiParameters()
     api_param = guiParam.copy()
-    
+
     # define paths
     paths = {
         "path_database": "database/",
@@ -517,78 +520,92 @@ def main():
 
     }
     guiParam.update(paths)
-    
-    
-    if st.button('Send Request to inveesion-API'):
-        
-    
 
-        # Send Request to inveesion-API
-        if guiParam["selectedApp"] != 'Empty':
+    # Send Request to inveesion-API
+    if guiParam["selectedApp"] != 'Empty':
 
-            print("\n[INFO] Sending Request to inveesion-API")
+        print("\n[INFO] Sending Request to inveesion-API")
 
-            if guiParam['appType'] == 'Image Application':
-                __, image_byte = DataManager(guiParam).load_image_or_video()
-                # fastapi_post_url = "http://127.0.0.1:8000/image/"
-                fastapi_post_url = "http://0.0.0.0:8000/image-api/"
+        if guiParam['appType'] == 'Image Application':
+            __, image_byte = DataManager(
+                guiParam).load_image_or_video()
+            fastapi_post_url = "http://0.0.0.0:8000/image-api/"
 
-                # fastapi_post_url ='https://inveesion-api-nvlm2sdkvq-ew.a.run.app/image/'
-                response = requests.post(fastapi_post_url,
-                                        params=api_param,
-                                        files={"image": image_byte})
+            # if st.button('Send to inveesion-API'):
+            # fastapi_post_url ='https://inveesion-api-nvlm2sdkvq-ew.a.run.app/image/'
 
-            elif guiParam['appType'] == 'Video Application':
-                video, video_byte = DataManager(guiParam).load_image_or_video()
+            print(api_param)
+            response = requests.post(fastapi_post_url,
+                                     json=api_param,
+                                     files={"image": image_byte})
 
-                fastapi_post_url = "http://0.0.0.0:8000/video-api/"
-                # fastapi_post_url ='https://inveesion-api-nvlm2sdkvq-ew.a.run.app/video/'
+        elif guiParam['appType'] == 'Video Application':
+            video, video_byte = DataManager(
+                guiParam).load_image_or_video()
+            fastapi_post_url = "http://0.0.0.0:8000/video-api/"
+            # fastapi_post_url ='https://inveesion-api-nvlm2sdkvq-ew.a.run.app/video/'
 
-                response = requests.post(fastapi_post_url,
-                                        params=api_param,
-                                        files={"video": video_byte})
-            print(response.url)
+            response = requests.post(fastapi_post_url,
+                                     params=api_param,
+                                     files={"video": video_byte})
+        print(response.url)
 
-            if response:
-                print('\nRequest is successful: ', response.status_code)
+        if response:
+            print('\nRequest is successful: ', response.status_code)
 
-                st.markdown("## Results")
-                res_json = response.json()['response']
-                keys = list(res_json.keys())
-                values = list(res_json.values())
+            st.markdown("## Results")
+            res_json = response.json()['response']
+            keys = list(res_json.keys())
+            values = list(res_json.values())
 
-                # display data in the frontend
-                if response.json()["media"] == "image":
+            # display data in the frontend
+            if response.json()["media"] == "image":
 
-                    # parse response and extract data (image + csv)
-                    with open(paths["received_data"]+'get_demo.png', 'wb') as im_byte:
-                        im_byte.write(base64.b64decode(values[0]))
-                    with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
-                        csv_byte.write(base64.b64decode(values[1]))
+                # parse response and extract data (image + csv)
+                with open(paths["received_data"]+'get_demo.png', 'wb') as im_byte:
+                    im_byte.write(base64.b64decode(values[0]))
+                with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
+                    csv_byte.write(base64.b64decode(values[1]))
 
-                    st.dataframe(pd.read_csv(paths["received_data"]+'get_demo.csv'))
-                    st.image(open(paths["received_data"]+'get_demo.png', 'rb').read(),
-                            channels="BGR",  use_column_width=True)
+                st.image(open(paths["received_data"]+'get_demo.png', 'rb').read(),
+                         channels="BGR",  use_column_width=True)
+                st.dataframe(pd.read_csv(
+                    paths["received_data"]+'get_demo.csv'))
 
-                elif response.json()["media"] == "video":
-                    
-                    # parse response and extract data (video + csv)
-                    with open(paths["received_data"]+'get_demo.mp4', 'wb') as vid_byte:
-                        vid_byte.write(base64.b64decode(values[0]))
-                    with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
-                        csv_byte.write(base64.b64decode(values[1]))
+            elif response.json()["media"] == "video":
 
-                    st.dataframe(pd.read_csv(paths["received_data"]+'get_demo.csv'))
-                    st.video(open(paths["received_data"]+'get_demo.mp4', 'rb').read())
+                # parse response and extract data (video + csv)
+                with open(paths["received_data"]+'get_demo.mp4', 'wb') as vid_byte:
+                    vid_byte.write(base64.b64decode(values[0]))
+                with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
+                    csv_byte.write(base64.b64decode(values[1]))
 
-            else:
-                print('\nRequest returned an error: ', response.status_code)
+                st.video(
+                    open(paths["received_data"]+'get_demo.mp4', 'rb').read())
+                df = pd.read_csv(paths["received_data"]+'get_demo.csv')
+                st.dataframe(df)
+                # st.area_chart( df,use_container_width=True)
+
+                import matplotlib.pyplot as plt
+                plt.plot(df['frameIdx'], df['total_object']
+                         ), plt.xticks(rotation=80),
+                plt.plot(df['frameIdx'], df['motion_status']
+                         ), plt.xticks(rotation=80),
+                st.pyplot()
+                plt.plot(df['frameIdx'], df['pixel_count']
+                         ), plt.xticks(rotation=80),
+                st.pyplot()
+
+                st.area_chart(df[['total_object']])
+                st.area_chart(df[['motion_status']])
+                st.area_chart(df['predClasses'])
 
         else:
-            st.warning("Please select an application")
+            print('\nRequest returned an error: ', response.status_code)
+
     else:
-            # st.write('Goodbye')
-        pass
+        st.warning("Please select an application")
+
 
 if __name__ == "__main__":
     main()
