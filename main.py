@@ -3,15 +3,16 @@ import os
 import urllib
 from io import BytesIO
 
+import cv2 as cv
+import matplotlib.pyplot as plt
 import numpy as np
+import pafy
 import pandas as pd
 import requests
-from PIL import Image
-
-import cv2 as cv
-import pafy
 import streamlit as st
 import youtube_dl
+from PIL import Image
+from starlette.testclient import TestClient
 
 ##########################################################
 
@@ -181,13 +182,15 @@ class GUI():
             label='Select the model',
             options=['Caffe-MobileNetSSD', 'Darknet-YOLOv3-tiny', 'Darknet-YOLOv3'])
 
-        # st.sidebar.markdown("### Target Object")
-        # #------------------------------------------------------#
-        # allowedLabel = st.sidebar.multiselect(
-        #     label='What object would like to detect?',
-        #     options=('person', 'cars', 'cell phone', 'plane', 'fire'))
+        st.sidebar.markdown("### Object Filtering")
+        #------------------------------------------------------#
+        allowedLabel = st.sidebar.multiselect(
+            label='What object would like to detect?',
+            options=('person', 'car', 'bicycle', 'dog', 'cell phone', 'plane', 'fire'))
 
-        # st.sidebar.markdown("### :arrow_right: Model Parameters")
+        allowedLabel = ['all'] if len(allowedLabel) == 0 else allowedLabel
+
+        st.sidebar.markdown("### :arrow_right: Model Parameters")
         #------------------------------------------------------#
         confThresh = st.sidebar.slider(
             'Confidence', value=0.5, min_value=0.0, max_value=1.0)
@@ -197,7 +200,7 @@ class GUI():
         self.guiParam.update(dict(confThresh=confThresh,
                                   nmsThresh=nmsThresh,
                                   model=model,
-                                #   allowedLabel=(allowedLabel)
+                                  allowedLabel=allowedLabel
                                   ))
         # st.text(self.guiParam["allowedLabel"])
     # --------------------------------------------------------------------------
@@ -277,7 +280,7 @@ class DataManager:
 
         if self.guiParam["dataSource"] == 'Database':
 
-            # @st.cache(allow_output_mutation=True)
+            @st.cache(allow_output_mutation=True)
             def load_image_from_path(image_path):
                 # im_rgb = cv.imread(image_path, cv.IMREAD_COLOR)
                 im_byte = open(image_path, 'rb').read()
@@ -397,6 +400,7 @@ class DataManager:
             #------------------------------------------------------#
             #------------------------------------------------------#
         elif self.guiParam["dataSource"] == 'Upload':
+            @st.cache(allow_output_mutation=True)
             def load_video_from_upload(file_path):
                 return None, file_path
 
@@ -456,14 +460,6 @@ class DataManager:
             #------------------------------------------------------#
 
         elif self.guiParam["dataSource"] == 'URL':
-            def url_to_image(url):
-                # download the image, convert it to a NumPy array, and then read
-                # it into OpenCV format
-                resp = urllib.urlopen(url)
-                image = np.asarray(bytearray(resp.read()), dtype="uint8")
-                image = cv.imdecode(image, cv.IMREAD_COLOR)
-                # return the image
-                return image
 
             @st.cache(allow_output_mutation=True)
             def load_video_from_url(video_url):
@@ -517,8 +513,8 @@ def main():
         "path_results": "app/results/",
         "path_model": "app/models/",
         "received_data": "data_from_api/",
-
     }
+    
     guiParam.update(paths)
 
     # Send Request to inveesion-API
@@ -529,24 +525,36 @@ def main():
         if guiParam['appType'] == 'Image Application':
             __, image_byte = DataManager(
                 guiParam).load_image_or_video()
-            # fastapi_post_url = "http://0.0.0.0:80/image-api/"
-            fastapi_post_url = "https://api.inveesion.com/image-api/"
+            fastapi_post_url = "http://127.0.0.1:8000/image-api/"
+            # fastapi_post_url = "https://api.inveesion.com/image-api/"
+            # fastapi_post_url = "http://127.0.0.1:8000/list/"
 
             # if st.button('Send to inveesion-API'):
 
-            response = requests.post(fastapi_post_url,
-                                     params=api_param,
-                                     files={"image": image_byte})
+            # api_param['allowedLabel'].pop()
+            # print(api_param['allowedLabel'])
+            # response = requests.post(fastapi_post_url,
+            #                          params=api_param,
+            #                          json=guiParam['allowedLabel'],
+            #                          files={"image": image_byte})
+
+            response = requests.get(fastapi_post_url,
+                                    #  params=api_param,
+                                    # {'data': guiParam['allowedLabel']},
+                                    params=guiParam,
+                                    files={"image": image_byte}
+                                    )
 
         elif guiParam['appType'] == 'Video Application':
             video, video_byte = DataManager(
                 guiParam).load_image_or_video()
-            fastapi_post_url = "https://api.inveesion.com/video-api/"
-            # fastapi_post_url ='https://inveesion-api-nvlm2sdkvq-ew.a.run.app/video/'
 
-            response = requests.post(fastapi_post_url,
-                                     params=api_param,
-                                     files={"video": video_byte})
+            # fastapi_post_url = "https://api.inveesion.com/video-api/"
+            fastapi_post_url = 'http://127.0.0.1:8000/video-api/'
+            response = requests.get(fastapi_post_url,
+                                    params=guiParam,  # api_param,
+                                    #  json=guiParam['allowedLabel'],
+                                    files={"video": video_byte})
         print(response.url)
 
         if response:
@@ -585,7 +593,6 @@ def main():
                 st.dataframe(df)
                 # st.area_chart( df,use_container_width=True)
 
-                import matplotlib.pyplot as plt
                 plt.plot(df['frameIdx'], df['total_object']
                          ), plt.xticks(rotation=80),
                 plt.plot(df['frameIdx'], df['motion_status']

@@ -4,8 +4,11 @@ streamlit
 # Python packages
 numpy
 pandas
-requests
 matplotlib
+
+# Send Request
+requests
+starlette
 
 # Computer Vision
 opencv-python
