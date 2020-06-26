@@ -288,14 +288,14 @@ class DataManager:
                 im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
                 return im_rgb, im_byte
 
-            file_path = st.sidebar.text_input('Enter the image PATH')
+            file_path = st.text_input('Enter the image PATH')
 
             if os.path.isfile(file_path):
                 self.image, self.image_byte = load_image_from_path(
                     image_path=file_path)
 
             elif file_path == "":
-                file_path_idx = st.sidebar.selectbox(
+                file_path_idx = st.selectbox(
                     'Or select a demo image from the list', list(self.demo_image_examples.keys()))
                 file_path = self.demo_image_examples[file_path_idx]
 
@@ -316,7 +316,7 @@ class DataManager:
                 im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
                 return im_rgb, im_byte
 
-            file_path = st.sidebar.file_uploader(
+            file_path = st.file_uploader(
                 'Upload an image', type=['png', 'jpg'])
 
             if file_path != None:
@@ -338,7 +338,7 @@ class DataManager:
                 im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
                 return im_rgb, im_byte
 
-            file_path = st.sidebar.text_input('Enter the image URL')
+            file_path = st.text_input('Enter the image URL')
 
             if file_path != "":
                 self.image, self.image_byte = load_image_from_url(
@@ -346,7 +346,7 @@ class DataManager:
 
             elif file_path == "":
 
-                file_path_idx = st.sidebar.selectbox(
+                file_path_idx = st.selectbox(
                     'Or select a URL from the list', list(self.url_demo_images.keys()))
                 file_path = self.url_demo_images[file_path_idx]
 
@@ -404,7 +404,7 @@ class DataManager:
             def load_video_from_upload(file_path):
                 return None, file_path
 
-            file_path = st.sidebar.file_uploader(
+            file_path = st.file_uploader(
                 "Upload a video (200 Mo maximum) ...", type=["mp4", "mpeg", 'avi'])
             # print("file_path",file_path)
             if file_path != None:
@@ -425,13 +425,13 @@ class DataManager:
                 video_byte = open(video_path, "rb").read()
                 return video, video_byte
 
-            file_path = st.sidebar.text_input(
+            file_path = st.text_input(
                 'Enter PATH of the video')
 
             if os.path.isfile(file_path):
                 self.video, self.video_byte = load_video_from_path(file_path)
             elif file_path == "":
-                file_path_idx = st.sidebar.selectbox(
+                file_path_idx = st.selectbox(
                     'Or select a demo image from the list', list(self.demo_video_examples.keys()))
                 file_path = self.demo_video_examples[file_path_idx]
                 self.video, self.video_byte = load_video_from_path(
@@ -471,7 +471,7 @@ class DataManager:
 
                 return video, video_byte
 
-            video_url = st.sidebar.text_input('Enter URL of the video')
+            video_url = st.text_input('Enter URL of the video')
             st.info(
                 'Samples here: https://research.google.com/youtube8m/explore.html')
 
@@ -479,7 +479,7 @@ class DataManager:
                 self.video, self.video_byte = load_video_from_url(video_url)
 
             elif video_url == "":
-                video_url_idx = st.sidebar.selectbox(
+                video_url_idx = st.selectbox(
                     'Or select a URL from the list', list(self.url_demo_videos.keys()))
                 video_url = self.url_demo_videos[video_url_idx]
                 self.video, self.video_byte = load_video_from_url(video_url)
@@ -514,7 +514,7 @@ def main():
         "path_model": "app/models/",
         "received_data": "data_from_api/",
     }
-    
+
     guiParam.update(paths)
 
     # Send Request to inveesion-API
@@ -523,38 +523,21 @@ def main():
         print("\n[INFO] Sending Request to inveesion-API")
 
         if guiParam['appType'] == 'Image Application':
-            __, image_byte = DataManager(
-                guiParam).load_image_or_video()
-            fastapi_post_url = "http://127.0.0.1:8000/image-api/"
-            # fastapi_post_url = "https://api.inveesion.com/image-api/"
-            # fastapi_post_url = "http://127.0.0.1:8000/list/"
-
-            # if st.button('Send to inveesion-API'):
-
-            # api_param['allowedLabel'].pop()
-            # print(api_param['allowedLabel'])
-            # response = requests.post(fastapi_post_url,
-            #                          params=api_param,
-            #                          json=guiParam['allowedLabel'],
-            #                          files={"image": image_byte})
-
-            response = requests.get(fastapi_post_url,
-                                    #  params=api_param,
-                                    # {'data': guiParam['allowedLabel']},
-                                    params=guiParam,
-                                    files={"image": image_byte}
-                                    )
+            __, image_byte = DataManager(guiParam).load_image_or_video()
+            url = "http://127.0.0.1:8000/image-api/{}".format(guiParam['selectedApp'])
+            # url = "https://api.inveesion.com/image-api/"
+            headers = {'Content-Type': 'application/json'}
+            files = [("image", image_byte)]
+            response = requests.request('GET', url, params=guiParam, files=files)
 
         elif guiParam['appType'] == 'Video Application':
-            video, video_byte = DataManager(
-                guiParam).load_image_or_video()
+            __, video_byte = DataManager(guiParam).load_image_or_video()
 
-            # fastapi_post_url = "https://api.inveesion.com/video-api/"
-            fastapi_post_url = 'http://127.0.0.1:8000/video-api/'
-            response = requests.get(fastapi_post_url,
-                                    params=guiParam,  # api_param,
-                                    #  json=guiParam['allowedLabel'],
-                                    files={"video": video_byte})
+            # url = "https://api.inveesion.com/video-api/"
+            url = 'http://127.0.0.1:8000/video-api/{}'.format(guiParam['selectedApp'])
+            headers = {'Content-Type': 'application/json'}
+            files = [("video", video_byte)]
+            response = requests.request('GET', url, params=guiParam, files=files)
         print(response.url)
 
         if response:
