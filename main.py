@@ -68,7 +68,7 @@ class GUI():
             self.frameFreq = st.sidebar.slider(
                 'Frame Frequency', value=15, min_value=1, max_value=60, step=1)
             self.frameMax = st.sidebar.slider(
-                'Frames to process', value=1000, min_value=self.frameFreq, max_value=5000, step=1)
+                'Frames to process', value=100, min_value=self.frameFreq, max_value=500, step=1)
 
         elif self.appType == 'Image Application':
             self.recordOutputVideo = False
