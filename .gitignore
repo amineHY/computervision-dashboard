@@ -2,7 +2,7 @@
 # *.csv
 *.pyc
 *.avi
-
+*.mp4
 
 # Folder to ignore
 venv/

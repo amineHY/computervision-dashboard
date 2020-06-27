@@ -510,8 +510,6 @@ class DataManager:
 
 
 def main():
-    """
-    """
 
     # get parameter for the api
     guiParam = GUI().getGuiParameters()
@@ -526,37 +524,48 @@ def main():
     }
 
     guiParam.update(paths)
-
+    
+    #----------------------------------------------------------------#
     # Send Request to inveesion-API
+    #----------------------------------------------------------------#
+    
     if guiParam["selectedApp"] != 'Empty':
 
         print("\n[INFO] Sending Request to inveesion-API")
 
+        #----------------------------------------------------------------#
+
         if guiParam['appType'] == 'Image Application':
             __, image_byte = DataManager(guiParam).load_image_or_video()
-            url = "http://127.0.0.1:8000/image-api/{}".format(
-                guiParam['selectedApp'])
-            # url = "https://api.inveesion.com/image-api/"
-            headers = {'Content-Type': 'application/json'}
+            # url = "http://127.0.0.1:8000/image-api/"#.format(guiParam['selectedApp'])
+            url = "https://api.inveesion.com/image-api/"#.format(guiParam['selectedApp'])
+            # url = "http://0.0.0.0:80/image-api/"#.format(guiParam['selectedApp']) 
+            
+
             files = [("image", image_byte)]
             response = requests.request(
-                'GET', url, params=guiParam, files=files)
-
+                'POST', url, params=guiParam, files=files)
+        
+        #----------------------------------------------------------------#
+        
         elif guiParam['appType'] == 'Video Application':
 
             # guiParam["allowedLabel"]= ['all'] if len(guiParam["allowedLabel"]) == 0 else guiParam["allowedLabel"]
 
-            print(guiParam)
+            
             __, video_byte = DataManager(guiParam).load_image_or_video()
 
-            # url = "https://api.inveesion.com/video-api/"
-            url = 'http://127.0.0.1:8000/video-api/{}'.format(
-                guiParam['selectedApp'])
-            headers = {'Content-Type': 'application/json'}
+            url = "https://api.inveesion.com/video-api/"#.format(guiParam['selectedApp'])
+            # url = "http://0.0.0.0:80/video-api/"#.format(guiParam['selectedApp'])
+            # url = 'http://127.0.0.1:8000/video-api/'#.format(guiParam['selectedApp'])
+            
             files = [("video", video_byte)]
             response = requests.request(
-                'GET', url, params=guiParam, files=files)
+                'POST', url, params=guiParam, files=files)
+
         print(response.url)
+
+        #----------------------------------------------------------------#
 
         if response:
             print('\nRequest is successful: ', response.status_code)

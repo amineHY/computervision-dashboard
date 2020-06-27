@@ -4,8 +4,11 @@
 *.avi
 
 
+
 # Folder to ignore
 venv/
 heroku/
 other/
 media/
+.env
+data_from_api/
