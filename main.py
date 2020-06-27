@@ -30,7 +30,7 @@ class GUI():
             'Fire Detection',
             'Face Detection_with_Blurring',
             'Face Detection',
-            # 'Cars Counting'
+            'Heatmap Motion'
         ]
 
         self.guiParam = {}
@@ -51,7 +51,7 @@ class GUI():
 
         st.title(title)
 
-        st.sidebar.markdown("### Settings")
+        st.sidebar.title("Settings")
 
         # Get the application type from the GUI
         self.appType = st.sidebar.radio(
@@ -122,12 +122,22 @@ class GUI():
                 'This application performs object counting using advanced deep learning models. It can detects more than 80 object from COCO dataset.')
             self.sidebarCarsCounting()
 
+        elif self.selectedApp == 'Heatmap Motion':
+            st.info(
+                'This application performs heatmap motion. It detect part of the video where there a concentrated movement.')
+            self.sidebarHeatmapMotion()
+
         else:
             st.info(
                 'To start using InVeesion dashboard you must first select an Application from the sidebar menu other than Empty')
 
     # --------------------------------------------------------------------------
     def sidebarEmpty(self):
+        pass
+    # --------------------------------------------------------------------------
+
+    def sidebarHeatmapMotion(self):
+
         pass
     # --------------------------------------------------------------------------
 
@@ -254,8 +264,8 @@ class DataManager:
             "Paris-street": "https://www.discoverwalks.com/blog/wp-content/uploads/2018/08/best-streets-in-paris.jpg"}
 
         self.demo_video_examples = {"Street-CCTV": guiParam["path_database"] + "object.mp4",
-                                    "Fire on the road": guiParam["path_database"] + "fire.mp4"}
-
+                                    "Fire on the road": guiParam["path_database"] + "fire.mp4",
+                                    "Showroom": guiParam["path_database"] + 'showroom.mov'}
         self.demo_image_examples = {"Family-picture": guiParam["path_database"] + "family.jpg",
                                     "Fire": guiParam["path_database"] + "fire.jpg",
                                     "Dog": guiParam["path_database"] + "dog.jpg",
@@ -524,20 +534,28 @@ def main():
 
         if guiParam['appType'] == 'Image Application':
             __, image_byte = DataManager(guiParam).load_image_or_video()
-            url = "http://127.0.0.1:8000/image-api/{}".format(guiParam['selectedApp'])
+            url = "http://127.0.0.1:8000/image-api/{}".format(
+                guiParam['selectedApp'])
             # url = "https://api.inveesion.com/image-api/"
             headers = {'Content-Type': 'application/json'}
             files = [("image", image_byte)]
-            response = requests.request('GET', url, params=guiParam, files=files)
+            response = requests.request(
+                'GET', url, params=guiParam, files=files)
 
         elif guiParam['appType'] == 'Video Application':
+
+            # guiParam["allowedLabel"]= ['all'] if len(guiParam["allowedLabel"]) == 0 else guiParam["allowedLabel"]
+
+            print(guiParam)
             __, video_byte = DataManager(guiParam).load_image_or_video()
 
             # url = "https://api.inveesion.com/video-api/"
-            url = 'http://127.0.0.1:8000/video-api/{}'.format(guiParam['selectedApp'])
+            url = 'http://127.0.0.1:8000/video-api/{}'.format(
+                guiParam['selectedApp'])
             headers = {'Content-Type': 'application/json'}
             files = [("video", video_byte)]
-            response = requests.request('GET', url, params=guiParam, files=files)
+            response = requests.request(
+                'GET', url, params=guiParam, files=files)
         print(response.url)
 
         if response:
@@ -559,6 +577,9 @@ def main():
 
                 st.image(open(paths["received_data"]+'get_demo.png', 'rb').read(),
                          channels="BGR",  use_column_width=True)
+
+                href = f'<a href="data:file/csv;base64,{values[1]}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
+                st.markdown(href, unsafe_allow_html=True)
                 st.dataframe(pd.read_csv(
                     paths["received_data"]+'get_demo.csv'))
 
@@ -573,27 +594,38 @@ def main():
                 st.video(
                     open(paths["received_data"]+'get_demo.mp4', 'rb').read())
                 df = pd.read_csv(paths["received_data"]+'get_demo.csv')
+
+                href = f'<a href="data:file/csv;base64,{values[1]}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
+                st.markdown(href, unsafe_allow_html=True)
+
                 st.dataframe(df)
                 # st.area_chart( df,use_container_width=True)
 
-                plt.plot(df['frameIdx'], df['total_object']
-                         ), plt.xticks(rotation=80),
-                plt.plot(df['frameIdx'], df['motion_status']
-                         ), plt.xticks(rotation=80),
-                st.pyplot()
-                plt.plot(df['frameIdx'], df['pixel_count']
-                         ), plt.xticks(rotation=80),
-                st.pyplot()
+                # plt.plot(df['frameIdx'], df['total_object']
+                #          ), plt.xticks(rotation=80),
+                # plt.plot(df['frameIdx'], df['motion_status']
+                #          ), plt.xticks(rotation=80),
+                # st.pyplot()
+                # plt.plot(df['frameIdx'], df['pixel_count']
+                #          ), plt.xticks(rotation=80),
+                # st.pyplot()
 
-                st.area_chart(df[['total_object']])
-                st.area_chart(df[['motion_status']])
-                st.area_chart(df['predClasses'])
+                # st.area_chart(df[['total_object']])
+                # st.area_chart(df[['motion_status']])
+                # st.area_chart(df['predClasses'])
 
         else:
             print('\nRequest returned an error: ', response.status_code)
 
     else:
         st.warning("Please select an application")
+
+    # Hide the footer
+    hide_footer_style = """
+    <style>
+    .reportview-container .main footer {visibility: hidden;}    
+    """
+    st.markdown(hide_footer_style, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":

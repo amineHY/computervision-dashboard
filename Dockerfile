@@ -25,4 +25,4 @@ EXPOSE 8080
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-CMD ["streamlit", "run", "--server.port", "8080", "main.py"]    
+CMD ["streamlit", "run", "--server.port", "8080", "--server.enableCORS", False,"main.py"]    
