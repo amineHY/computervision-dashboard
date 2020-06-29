@@ -14,7 +14,7 @@ import youtube_dl
 from PIL import Image
 from starlette.testclient import TestClient
 
-##########################################################
+#--------------------------------------------------------#
 
 
 class GUI():
@@ -26,11 +26,12 @@ class GUI():
 
         self.list_of_apps = [
             'Empty',
-            'Object Detection',
-            'Fire Detection',
+            "Face Mask Detection",
             'Face Detection_with_Blurring',
             'Face Detection',
-            'Heatmap Motion'
+            'Object Detection',
+            'Fire Detection',
+            'Heatmap Motion',
         ]
 
         self.guiParam = {}
@@ -67,6 +68,7 @@ class GUI():
 
             self.frameFreq = st.sidebar.slider(
                 'Frame Frequency', value=15, min_value=1, max_value=60, step=1)
+
             self.frameMax = st.sidebar.slider(
                 'Frames to process', value=100, min_value=self.frameFreq, max_value=500, step=1)
 
@@ -117,10 +119,10 @@ class GUI():
                 'This application performs fire detection using advanced deep learning models. ')
             self.sidebarFireDetection()
 
-        elif self.selectedApp == 'Cars Counting':
+        elif self.selectedApp == "Face Mask Detection":
             st.info(
-                'This application performs object counting using advanced deep learning models. It can detects more than 80 object from COCO dataset.')
-            self.sidebarCarsCounting()
+                'This application performs Face Mask Detection')
+            self.sidebarFaceMaskDetection()
 
         elif self.selectedApp == 'Heatmap Motion':
             st.info(
@@ -154,12 +156,10 @@ class GUI():
         st.sidebar.markdown("### :arrow_right: Parameters")
         # --------------------------------------------------------------------------
         confThresh = st.sidebar.slider(
-            'Confidence', value=0.40, min_value=0.0, max_value=1.00, step=0.05)
-        faceBlur = False
+            'Confidence', value=0.60, min_value=0.0, max_value=1.00, step=0.05)
 
         self.guiParam.update(dict(confThresh=confThresh,
-                                  model=model,
-                                  faceBlur=faceBlur))
+                                  model=model))
 
     # --------------------------------------------------------------------------
 
@@ -176,11 +176,30 @@ class GUI():
         st.sidebar.markdown("### :arrow_right: Parameters")
         # --------------------------------------------------------------------------
         confThresh = st.sidebar.slider(
-            'Confidence', value=0.40, min_value=0.0, max_value=1.00, step=0.05)
-        faceBlur = True
-        self.guiParam.update(dict(faceBlur=faceBlur,
-                                  confThresh=confThresh,
-                                  model=model))
+            'Confidence', value=0.60, min_value=0.0, max_value=1.00, step=0.05)
+        self.guiParam.update(dict(
+            confThresh=confThresh,
+            model=model))
+    # --------------------------------------------------------------------------
+
+    def sidebarFaceMaskDetection(self):
+        """
+        """
+
+        # st.sidebar.markdown("### :arrow_right: Model")
+        # --------------------------------------------------------------------------
+        model = st.sidebar.selectbox(
+            label='Select the model',
+            options=(["MobileNetSSD"]))
+
+        st.sidebar.markdown("### :arrow_right: Parameters")
+        # --------------------------------------------------------------------------
+        confThresh = st.sidebar.slider(
+            'Confidence', value=0.60, min_value=0.0, max_value=1.00, step=0.05)
+
+        self.guiParam.update(dict(
+            confThresh=confThresh,
+            model=model))
 
     # --------------------------------------------------------------------------
 
@@ -203,7 +222,7 @@ class GUI():
         st.sidebar.markdown("### :arrow_right: Model Parameters")
         #------------------------------------------------------#
         confThresh = st.sidebar.slider(
-            'Confidence', value=0.5, min_value=0.0, max_value=1.0)
+            'Confidence', value=0.6, min_value=0.0, max_value=1.0)
         nmsThresh = st.sidebar.slider(
             'Non-maximum suppression', value=0.30, min_value=0.0, max_value=1.00, step=0.05)
 
@@ -212,7 +231,7 @@ class GUI():
                                   model=model,
                                   allowedLabel=allowedLabel
                                   ))
-        # st.text(self.guiParam["allowedLabel"])
+
     # --------------------------------------------------------------------------
 
     def sidebarFireDetection(self):
@@ -226,7 +245,7 @@ class GUI():
         # st.sidebar.markdown("### :arrow_right: Model Parameters")
         #------------------------------------------------------#
         confThresh = st.sidebar.slider(
-            'Confidence', value=0.5, min_value=0.0, max_value=1.0)
+            'Confidence', value=0.6, min_value=0.0, max_value=1.0)
         nmsThresh = st.sidebar.slider(
             'Non-maximum suppression', value=0.30, min_value=0.0, max_value=1.00, step=0.05)
 
@@ -245,7 +264,8 @@ class GUI():
 
         self.guiParam.update(dict(model=model))
 
-##########################################################
+#--------------------------------------------------------#
+#--------------------------------------------------------#
 
 
 class DataManager:
@@ -264,13 +284,11 @@ class DataManager:
             "Paris-street": "https://www.discoverwalks.com/blog/wp-content/uploads/2018/08/best-streets-in-paris.jpg"}
 
         self.demo_video_examples = {"Street-CCTV": guiParam["path_database"] + "object.mp4",
-                                    "Fire on the road": guiParam["path_database"] + "fire.mp4",
                                     "Showroom": guiParam["path_database"] + 'showroom.mov'}
-        self.demo_image_examples = {"Family-picture": guiParam["path_database"] + "family.jpg",
-                                    "Fire": guiParam["path_database"] + "fire.jpg",
+        self.demo_image_examples = {"COVID-19 Mask": guiParam["path_database"] + "face_mask.jpeg",
+                                    "Family-picture": guiParam["path_database"] + "family.jpg",
                                     "Dog": guiParam["path_database"] + "dog.jpg",
                                     "Crosswalk": guiParam["path_database"] + "demo.jpg",
-                                    "Cat": guiParam["path_database"] + "cat.jpg",
                                     "Car on fire": guiParam["path_database"] + "car_on_fire.jpg"}
 
         self.image = None
@@ -281,8 +299,8 @@ class DataManager:
         self.data = None
         self.data_byte = None
 
-  #################################################################
-  #################################################################
+  #--------------------------------------------------------#
+  #--------------------------------------------------------#
 
     def load_image_source(self):
         """
@@ -293,7 +311,8 @@ class DataManager:
             @st.cache(allow_output_mutation=True)
             def load_image_from_path(image_path):
                 # im_rgb = cv.imread(image_path, cv.IMREAD_COLOR)
-                im_byte = open(image_path, 'rb').read()
+                with open(image_path, 'rb') as f:
+                    im_byte = f.read()
                 im_ndarr = np.frombuffer(im_byte, dtype=np.uint8)
                 im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
                 return im_rgb, im_byte
@@ -341,6 +360,7 @@ class DataManager:
 
             @st.cache(allow_output_mutation=True)
             def load_image_from_url(url_image):
+                print('Downloading ...')
                 file = urllib.request.urlopen(url_image)
                 im_byte = file.read()
                 # tmp = np.asarray(bytearray(file.read()), dtype=np.uint8)
@@ -432,11 +452,12 @@ class DataManager:
             def load_video_from_path(video_path):
                 isinstance(video_path, str)
                 video = cv.VideoCapture(video_path)
-                video_byte = open(video_path, "rb").read()
-                return video, video_byte
+                with open(video_path, "rb") as f:
+                    video_byte = f.read()
+                    # print(type(video_byte))
+                return video_path, video_byte
 
-            file_path = st.text_input(
-                'Enter PATH of the video')
+            file_path = st.text_input('Enter PATH of the video')
 
             if os.path.isfile(file_path):
                 self.video, self.video_byte = load_video_from_path(file_path)
@@ -474,28 +495,46 @@ class DataManager:
             @st.cache(allow_output_mutation=True)
             def load_video_from_url(video_url):
                 isinstance(video_url, str)
-                video = pafy.new(video_url)
-                videoHightRes = video.getbest(preftype="mp4")
-                videoHightRes.download('demo.mp4')
-                video_byte = open('demo.mp4', 'rb').read()
+                print('Downloading ', video_url)
 
+                ydl_opts = {
+                    
+                    'format': 'bestvideo[height<=480]',
+                    'outtmpl':'database/tmp.mp4'
+                    }
+                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                    ydl.download([video_url])
+                print(ydl)  
+                # video = pafy.new(video_url)
+                # videoHightRes = video.getbest(preftype="mp4")
+                # videoHightRes.download('database/demso.mp4')
+                with open('database/tmp.mp4', 'rb') as f:
+                    video_byte = f.read()
+                    print('reading video')
+                os.system("rm database/tmp.mp4")
+
+                video = None
                 return video, video_byte
 
             video_url = st.text_input('Enter URL of the video')
-            st.info(
-                'Samples here: https://research.google.com/youtube8m/explore.html')
+            # st.info(
+            #     'Samples here: https://research.google.com/youtube8m/explore.html')
 
             if video_url != "":
                 self.video, self.video_byte = load_video_from_url(video_url)
-
-            elif video_url == "":
-                video_url_idx = st.selectbox(
-                    'Or select a URL from the list', list(self.url_demo_videos.keys()))
-                video_url = self.url_demo_videos[video_url_idx]
-                self.video, self.video_byte = load_video_from_url(video_url)
-
             else:
-                raise ValueError("[Error] Please enter a valid video URL")
+                st.info("Here are some video samples"+
+                "\n Driving car in a city: https://www.youtube.com/watch?v=7BjNbkONCFw \
+                \n A Sample Video with Faces: https://www.youtube.com/watch?v=ohmajJTcpNk"
+                )
+            # elif video_url == "":
+            #     video_url_idx = st.selectbox(
+            #         'Or select a URL from the list', list(self.url_demo_videos.keys()))
+            #     video_url = self.url_demo_videos[video_url_idx]
+            #     self.video, self.video_byte = load_video_from_url(video_url)
+
+            # else:
+            #     raise ValueError("[Error] Please enter a valid video URL")
 
             #------------------------------------------------------#
 
@@ -506,7 +545,7 @@ class DataManager:
 
         return self.video, self.video_byte
 
-##########################################################
+#--------------------------------------------------------#
 
 
 def main():
@@ -524,112 +563,140 @@ def main():
     }
 
     guiParam.update(paths)
-    
+
     #----------------------------------------------------------------#
     # Send Request to inveesion-API
     #----------------------------------------------------------------#
-    
-    if guiParam["selectedApp"] != 'Empty':
 
-        print("\n[INFO] Sending Request to inveesion-API")
+    if guiParam["selectedApp"] != 'Empty':
 
         #----------------------------------------------------------------#
 
         if guiParam['appType'] == 'Image Application':
             __, image_byte = DataManager(guiParam).load_image_or_video()
-            # url = "http://127.0.0.1:8000/image-api/"#.format(guiParam['selectedApp'])
-            url = "https://api.inveesion.com/image-api/"#.format(guiParam['selectedApp'])
-            # url = "http://0.0.0.0:80/image-api/"#.format(guiParam['selectedApp']) 
-            
 
-            files = [("image", image_byte)]
-            response = requests.request(
-                'POST', url, params=guiParam, files=files)
-        
+            trigger = st.button("[INFO] Calling InVeesion-API")
+            if trigger:
+
+                url = "http://127.0.0.1:8000/image-api/"
+                # url = "https://api.inveesion.com/image-api/"#.format(guiParam['selectedApp'])
+                # url = "http://0.0.0.0:80/image-api/"#.format(guiParam['selectedApp'])
+                files = [("image", image_byte)]
+                response = requests.request('POST', url, params=guiParam, files=files)
+
+                print(response.url)
+
+                if response.status_code == 200:
+                    print('\nRequest is successful: ', response.status_code)
+
+                    st.markdown("## Results")
+                    res_json = response.json()['response']
+                    keys = list(res_json.keys())
+                    values = list(res_json.values())
+
+                    # # display data in the frontend
+                    # if response.json()["media"] == "image":
+
+                    # parse response and extract data (image + csv)
+                    with open(paths["received_data"]+'get_demo.png', 'wb') as im_byte:
+                        im_byte.write(base64.b64decode(values[0]))
+                    with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
+                        csv_byte.write(base64.b64decode(values[1]))
+
+                    st.image(open(paths["received_data"]+'get_demo.png', 'rb').read(),
+                             channels="BGR",  use_column_width=True)
+
+                    href = f'<a href="data:file/csv;base64,{values[1]}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
+                    st.markdown(href, unsafe_allow_html=True)
+                    st.dataframe(pd.read_csv(
+                        paths["received_data"]+'get_demo.csv'))
+                else:
+                    print('\nRequest returned an error: ', response.status_code)
+
         #----------------------------------------------------------------#
-        
+        #----------------------------------------------------------------#
+
         elif guiParam['appType'] == 'Video Application':
+            video_path, video_byte = DataManager(guiParam).load_image_or_video()
 
-            # guiParam["allowedLabel"]= ['all'] if len(guiParam["allowedLabel"]) == 0 else guiParam["allowedLabel"]
+            trigger = st.button("[INFO] Calling InVeesion-API")
 
-            
-            __, video_byte = DataManager(guiParam).load_image_or_video()
+            if trigger:
+                # url = "https://api.inveesion.com/video-api/"#.format(guiParam['selectedApp'])
+                # url = "http://0.0.0.0:80/video-api/"#.format(guiParam['selectedApp'])
 
-            url = "https://api.inveesion.com/video-api/"#.format(guiParam['selectedApp'])
-            # url = "http://0.0.0.0:80/video-api/"#.format(guiParam['selectedApp'])
-            # url = 'http://127.0.0.1:8000/video-api/'#.format(guiParam['selectedApp'])
-            
-            files = [("video", video_byte)]
-            response = requests.request(
-                'POST', url, params=guiParam, files=files)
+                url = 'http://127.0.0.1:8000/video-api/'
+                files = [("video", video_byte)]
+                
+                response = requests.request(
+                    'POST', url, params=guiParam, files=files)
 
-        print(response.url)
+                print(response.url)
 
-        #----------------------------------------------------------------#
+                if response.status_code == 200:
+                    print('\nRequest is successful: ', response.status_code)
 
-        if response:
-            print('\nRequest is successful: ', response.status_code)
+                    st.markdown("## Results")
+                    res_json = response.json()['response']
+                    keys = list(res_json.keys())
+                    values = list(res_json.values())
 
-            st.markdown("## Results")
-            res_json = response.json()['response']
-            keys = list(res_json.keys())
-            values = list(res_json.values())
+                    # # display data in the frontend
+                    # if response.json()["media"] == "image":
 
-            # display data in the frontend
-            if response.json()["media"] == "image":
+                    #     # parse response and extract data (image + csv)
+                    #     with open(paths["received_data"]+'get_demo.png', 'wb') as im_byte:
+                    #         im_byte.write(base64.b64decode(values[0]))
+                    #     with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
+                    #         csv_byte.write(base64.b64decode(values[1]))
 
-                # parse response and extract data (image + csv)
-                with open(paths["received_data"]+'get_demo.png', 'wb') as im_byte:
-                    im_byte.write(base64.b64decode(values[0]))
-                with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
-                    csv_byte.write(base64.b64decode(values[1]))
+                    #     with open(paths["received_data"]+'get_demo.png', 'rb') as f:
+                    #         st.image(f.read(), channels="BGR",  use_column_width=True)
 
-                st.image(open(paths["received_data"]+'get_demo.png', 'rb').read(),
-                         channels="BGR",  use_column_width=True)
+                    #     href = f'<a href="data:file/csv;base64,{values[1]}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
+                    #     st.markdown(href, unsafe_allow_html=True)
+                    #     st.dataframe(pd.read_csv(
+                    #         paths["received_data"]+'get_demo.csv'))
 
-                href = f'<a href="data:file/csv;base64,{values[1]}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
-                st.markdown(href, unsafe_allow_html=True)
-                st.dataframe(pd.read_csv(
-                    paths["received_data"]+'get_demo.csv'))
+                    # elif response.json()["media"] == "video":
 
-            elif response.json()["media"] == "video":
+                    # parse response and extract data (video + csv)
+                    with open(paths["received_data"]+'get_demo.mp4', 'wb') as vid_byte:
+                        vid_byte.write(base64.b64decode(values[0]))
+                    with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
+                        csv_byte.write(base64.b64decode(values[1]))
 
-                # parse response and extract data (video + csv)
-                with open(paths["received_data"]+'get_demo.mp4', 'wb') as vid_byte:
-                    vid_byte.write(base64.b64decode(values[0]))
-                with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
-                    csv_byte.write(base64.b64decode(values[1]))
+                    with open(paths["received_data"]+'get_demo.mp4', 'rb') as f:
+                        st.video(f.read())
 
-                st.video(
-                    open(paths["received_data"]+'get_demo.mp4', 'rb').read())
-                df = pd.read_csv(paths["received_data"]+'get_demo.csv')
+                    df = pd.read_csv(paths["received_data"]+'get_demo.csv')
 
-                href = f'<a href="data:file/csv;base64,{values[1]}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
-                st.markdown(href, unsafe_allow_html=True)
+                    href = f'<a href="data:file/csv;base64,{values[1]}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
+                    st.markdown(href, unsafe_allow_html=True)
 
-                st.dataframe(df)
-                # st.area_chart( df,use_container_width=True)
+                    st.dataframe(df)
+                    # st.area_chart( df,use_container_width=True)
 
-                # plt.plot(df['frameIdx'], df['total_object']
-                #          ), plt.xticks(rotation=80),
-                # plt.plot(df['frameIdx'], df['motion_status']
-                #          ), plt.xticks(rotation=80),
-                # st.pyplot()
-                # plt.plot(df['frameIdx'], df['pixel_count']
-                #          ), plt.xticks(rotation=80),
-                # st.pyplot()
+                    # plt.plot(df['frameIdx'], df['total_object']
+                    #          ), plt.xticks(rotation=80),
+                    # plt.plot(df['frameIdx'], df['motion_status']
+                    #          ), plt.xticks(rotation=80),
+                    # st.pyplot()
+                    # plt.plot(df['frameIdx'], df['pixel_count']
+                    #          ), plt.xticks(rotation=80),
+                    # st.pyplot()
 
-                # st.area_chart(df[['total_object']])
-                # st.area_chart(df[['motion_status']])
-                # st.area_chart(df['predClasses'])
+                    # st.area_chart(df[['total_object']])
+                    # st.area_chart(df[['motion_status']])
+                    # st.area_chart(df['predClasses'])
 
-        else:
-            print('\nRequest returned an error: ', response.status_code)
+                else:
+                    print('\nRequest returned an error: ', response.status_code)
 
     else:
         st.warning("Please select an application")
 
-    # Hide the footer
+    # Hide the streamlit footer
     hide_footer_style = """
     <style>
     .reportview-container .main footer {visibility: hidden;}    
