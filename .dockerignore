@@ -11,4 +11,4 @@ heroku/
 other/
 media/
 .env
-data_from_api/
+# data_from_api/

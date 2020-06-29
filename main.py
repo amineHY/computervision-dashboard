@@ -27,7 +27,7 @@ class GUI():
         self.list_of_apps = [
             'Empty',
             "Face Mask Detection",
-            'Face Detection_with_Blurring',
+            'Face Detection with Blurring',
             'Face Detection',
             'Object Detection',
             'Fire Detection',
@@ -97,7 +97,7 @@ class GUI():
 
     def appDescription(self):
 
-        st.header(' :arrow_right: Application: {}'.format(self.selectedApp))
+        st.header('{}'.format(self.selectedApp))
 
         if self.selectedApp == 'Object Detection':
             st.info(
@@ -109,7 +109,7 @@ class GUI():
                 "This application performs face detection using advanced deep learning models. It can detects face in the image.")
             self.sidebarFaceDetection()
 
-        elif self.selectedApp == 'Face Detection_with_Blurring':
+        elif self.selectedApp == 'Face Detection with Blurring':
             st.info(
                 "This application performs face detection using advanced deep learning models. It can detects face in the image. In addition, to preserve privacy, it blur the detected faces to comply with the RGPD.")
             self.sidebarFaceDetectionWithBlur()
@@ -571,6 +571,7 @@ def main():
     if guiParam["selectedApp"] != 'Empty':
 
         #----------------------------------------------------------------#
+        url_base="https://inveesion-api.herokuapp.com/"
 
         if guiParam['appType'] == 'Image Application':
             __, image_byte = DataManager(guiParam).load_image_or_video()
@@ -578,11 +579,11 @@ def main():
             trigger = st.button("[INFO] Calling InVeesion-API")
             if trigger:
 
-                url = "http://127.0.0.1:8000/image-api/"
+                # url = "http://127.0.0.1:8000/image-api/"
                 # url = "https://api.inveesion.com/image-api/"#.format(guiParam['selectedApp'])
                 # url = "http://0.0.0.0:80/image-api/"#.format(guiParam['selectedApp'])
                 files = [("image", image_byte)]
-                response = requests.request('POST', url, params=guiParam, files=files)
+                response = requests.request('POST', url_base + "image-api/", params=guiParam, files=files)
 
                 print(response.url)
 
@@ -625,11 +626,11 @@ def main():
                 # url = "https://api.inveesion.com/video-api/"#.format(guiParam['selectedApp'])
                 # url = "http://0.0.0.0:80/video-api/"#.format(guiParam['selectedApp'])
 
-                url = 'http://127.0.0.1:8000/video-api/'
+                # url = 'http://127.0.0.1:8000/video-api/'
                 files = [("video", video_byte)]
                 
                 response = requests.request(
-                    'POST', url, params=guiParam, files=files)
+                    'POST', url_base + "video-api/", params=guiParam, files=files)
 
                 print(response.url)
 

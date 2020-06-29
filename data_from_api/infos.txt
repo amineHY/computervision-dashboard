@@ -1,0 +1,1 @@
+This folder contains media received from InVeesion API
