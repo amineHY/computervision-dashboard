@@ -588,9 +588,9 @@ def main():
 
         #----------------------------------------------------------------#
         # url_base="https://inveesion-api.herokuapp.com/"
-        # url_base = "http://.0.0.0:8000/"
+        # url_base = "http://127.0.0.1:8000/"
         # url_base = "https://api.inveesion.com/"
-        url_base = "http://0.0.0.0:80/"
+        url_base = "http://0.0.0.0:8000/"
 
         if guiParam['appType'] == 'Image Application':
             __, image_byte = DataManager(guiParam).load_image_or_video()
