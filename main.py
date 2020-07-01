@@ -1,3 +1,11 @@
+#----------------------------------------------------------------#
+"""
+Author: Amine Hadj-Youcef
+Email: hadjyoucef.amine@gmail.com
+Website: www.amine-hy.com
+Github: https://github.com/amineHY
+"""
+#----------------------------------------------------------------#
 import base64
 import os
 import urllib
@@ -11,11 +19,11 @@ import pandas as pd
 import requests
 import streamlit as st
 import youtube_dl
-from PIL import Image
-from starlette.testclient import TestClient
 
-#--------------------------------------------------------#
+print(__doc__)
 
+#----------------------------------------------------------------#
+#----------------------------------------------------------------#
 
 class GUI():
     """
@@ -45,7 +53,7 @@ class GUI():
 
         # ------------------------------------a----------------------------
 
-    def common_config(self, title='Computer Vision Dashboard 🚀'):  # (Beta version :golf:)
+    def common_config(self, title='InVeesion Dashboard 🚀'):  # (Beta version :golf:)
         """
         User Interface Management: Sidebar
         """
@@ -264,8 +272,8 @@ class GUI():
 
         self.guiParam.update(dict(model=model))
 
-#--------------------------------------------------------#
-#--------------------------------------------------------#
+#----------------------------------------------------------------#
+#----------------------------------------------------------------#
 
 
 class DataManager:
@@ -436,13 +444,20 @@ class DataManager:
 
             file_path = st.file_uploader(
                 "Upload a video (200 Mo maximum) ...", type=["mp4", "mpeg", 'avi'])
-            # print("file_path",file_path)
-            if file_path != None:
-                self.video, self.video_byte = load_video_from_upload(file_path)
-            elif file_path == None:
-                raise ValueError(
-                    "[Error] Please upload a valid image ('mp4', 'mpeg', 'avi')")
 
+            if file_path != "":
+                self.video, self.video_byte = load_video_from_upload(file_path)
+            else :
+                st.info("Please upload a valid image ('mp4', 'mpeg', 'avi')")
+            
+            
+            # if video_url != "":
+            #     self.video, self.video_byte = load_video_from_url(video_url)
+            # else:
+            #     st.info("Here are some video samples"+
+            #     "\n Driving car in a city: https://www.youtube.com/watch?v=7BjNbkONCFw \
+            #     \n A Sample Video with Faces: https://www.youtube.com/watch?v=ohmajJTcpNk"
+            #     )
             #------------------------------------------------------#
             #------------------------------------------------------#
 
@@ -545,7 +560,8 @@ class DataManager:
 
         return self.video, self.video_byte
 
-#--------------------------------------------------------#
+#----------------------------------------------------------------#
+#----------------------------------------------------------------#
 
 
 def main():
@@ -563,7 +579,7 @@ def main():
     }
 
     guiParam.update(paths)
-
+    
     #----------------------------------------------------------------#
     # Send Request to inveesion-API
     #----------------------------------------------------------------#
@@ -571,19 +587,21 @@ def main():
     if guiParam["selectedApp"] != 'Empty':
 
         #----------------------------------------------------------------#
-        url_base="https://inveesion-api.herokuapp.com/"
+        # url_base="https://inveesion-api.herokuapp.com/"
+        # url_base = "http://.0.0.0:8000/"
+        # url_base = "https://api.inveesion.com/"
+        url_base = "http://0.0.0.0:80/"
 
         if guiParam['appType'] == 'Image Application':
             __, image_byte = DataManager(guiParam).load_image_or_video()
 
-            trigger = st.button("[INFO] Calling InVeesion-API")
-            if trigger:
+            if st.button("[INFO] Calling InVeesion-API"):
 
-                # url = "http://127.0.0.1:8000/image-api/"
-                # url = "https://api.inveesion.com/image-api/"#.format(guiParam['selectedApp'])
-                # url = "http://0.0.0.0:80/image-api/"#.format(guiParam['selectedApp'])
+
                 files = [("image", image_byte)]
-                response = requests.request('POST', url_base + "image-api/", params=guiParam, files=files)
+                endpoint = "image-api/"
+                print(url_base + endpoint)
+                response = requests.request('POST', url_base + endpoint, params=guiParam, files=files)
 
                 print(response.url)
 
@@ -595,8 +613,6 @@ def main():
                     keys = list(res_json.keys())
                     values = list(res_json.values())
 
-                    # # display data in the frontend
-                    # if response.json()["media"] == "image":
 
                     # parse response and extract data (image + csv)
                     with open(paths["received_data"]+'get_demo.png', 'wb') as im_byte:
@@ -616,21 +632,18 @@ def main():
 
         #----------------------------------------------------------------#
         #----------------------------------------------------------------#
+        #----------------------------------------------------------------#
 
         elif guiParam['appType'] == 'Video Application':
             video_path, video_byte = DataManager(guiParam).load_image_or_video()
 
-            trigger = st.button("[INFO] Calling InVeesion-API")
 
-            if trigger:
-                # url = "https://api.inveesion.com/video-api/"#.format(guiParam['selectedApp'])
-                # url = "http://0.0.0.0:80/video-api/"#.format(guiParam['selectedApp'])
-
-                # url = 'http://127.0.0.1:8000/video-api/'
-                files = [("video", video_byte)]
-                
+            if st.button("[INFO] Calling InVeesion-API"):
+    
+                files = [("video", video_byte)]   
+                endpoint = "video-api/"
                 response = requests.request(
-                    'POST', url_base + "video-api/", params=guiParam, files=files)
+                    'POST', url_base + endpoint, params=guiParam, files=files)
 
                 print(response.url)
 
@@ -642,32 +655,18 @@ def main():
                     keys = list(res_json.keys())
                     values = list(res_json.values())
 
-                    # # display data in the frontend
-                    # if response.json()["media"] == "image":
 
-                    #     # parse response and extract data (image + csv)
-                    #     with open(paths["received_data"]+'get_demo.png', 'wb') as im_byte:
-                    #         im_byte.write(base64.b64decode(values[0]))
-                    #     with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
-                    #         csv_byte.write(base64.b64decode(values[1]))
-
-                    #     with open(paths["received_data"]+'get_demo.png', 'rb') as f:
-                    #         st.image(f.read(), channels="BGR",  use_column_width=True)
-
-                    #     href = f'<a href="data:file/csv;base64,{values[1]}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
-                    #     st.markdown(href, unsafe_allow_html=True)
-                    #     st.dataframe(pd.read_csv(
-                    #         paths["received_data"]+'get_demo.csv'))
-
-                    # elif response.json()["media"] == "video":
 
                     # parse response and extract data (video + csv)
-                    with open(paths["received_data"]+'get_demo.mp4', 'wb') as vid_byte:
+                    with open(paths["received_data"]+'get_demo.avi', 'wb') as vid_byte:
                         vid_byte.write(base64.b64decode(values[0]))
                     with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
                         csv_byte.write(base64.b64decode(values[1]))
-
-                    with open(paths["received_data"]+'get_demo.mp4', 'rb') as f:
+                    video_path = paths["received_data"]+'get_demo.avi'
+                    
+                    os.system( "ffmpeg -y -i "+video_path+" -vcodec libx264 "+video_path[:-4]+".mp4 && rm "+video_path)
+                    
+                    with open(video_path[:-4]+'.mp4', 'rb') as f:
                         st.video(f.read())
 
                     df = pd.read_csv(paths["received_data"]+'get_demo.csv')
@@ -690,6 +689,8 @@ def main():
                     # st.area_chart(df[['total_object']])
                     # st.area_chart(df[['motion_status']])
                     # st.area_chart(df['predClasses'])
+                    # # display data in the frontend
+                    # if response.json()["media"] == "image":
 
                 else:
                     print('\nRequest returned an error: ', response.status_code)
@@ -698,12 +699,17 @@ def main():
         st.warning("Please select an application")
 
     # Hide the streamlit footer
+    #----------------------------------------------------------------#
     hide_footer_style = """
     <style>
     .reportview-container .main footer {visibility: hidden;}    
     """
     st.markdown(hide_footer_style, unsafe_allow_html=True)
 
+
+#----------------------------------------------------------------#
+#----------------------------------------------------------------#
+#----------------------------------------------------------------#
 
 if __name__ == "__main__":
     main()
