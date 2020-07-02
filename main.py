@@ -14,7 +14,7 @@ from io import BytesIO
 import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
-import pafy
+# import pafy
 import pandas as pd
 import requests
 import streamlit as st
@@ -596,10 +596,9 @@ def main():
             __, image_byte = DataManager(guiParam).load_image_or_video()
 
             if st.button("[INFO] Calling InVeesion-API"):
-
+                print((type(image_byte))
                 files = [("image", image_byte)]
                 endpoint = "image-api/"
-                print(url_base + endpoint)
                 response = requests.request('POST', url_base + endpoint, params=guiParam, files=files)
 
                 print(response.url)

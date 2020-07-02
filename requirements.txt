@@ -8,11 +8,10 @@ matplotlib
 
 # Send Request
 requests
-starlette
 
 # Computer Vision
 opencv-python
 
 # get data from URL
-pafy
+# pafy
 youtube-dl
