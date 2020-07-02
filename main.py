@@ -573,8 +573,6 @@ def main():
     # define paths
     paths = {
         "path_database": "database/",
-        "path_results": "app/results/",
-        "path_model": "app/models/",
         "received_data": "data_from_api/",
     }
 
@@ -588,15 +586,16 @@ def main():
 
         #----------------------------------------------------------------#
         # url_base="https://inveesion-api.herokuapp.com/"
-        # url_base = "http://127.0.0.1:8000/"
+        # url_base = "http://localhost:8000/"
         # url_base = "https://api.inveesion.com/"
-        url_base = "http://0.0.0.0:8000/"
+        # url_base = "http://0.0.0.0:8000/"
+        # url_base = "http://0.0.0.0:8000/"
+        url_base = "http://inveesion-api:8000/"
 
         if guiParam['appType'] == 'Image Application':
             __, image_byte = DataManager(guiParam).load_image_or_video()
 
             if st.button("[INFO] Calling InVeesion-API"):
-
 
                 files = [("image", image_byte)]
                 endpoint = "image-api/"

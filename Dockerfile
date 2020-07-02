@@ -23,23 +23,24 @@ ENV LANG=C.UTF-8
 COPY . ./
 
 # --------------- Streamlit-specific commands
-RUN mkdir -p /root/.streamlit
-RUN bash -c 'echo -e "\
-[general]\n\
-email = \"\"\n\
-" > /root/.streamlit/credentials.toml'
-RUN bash -c 'echo -e "\
-[server]\n\
-enableCORS = false\n\
-port = $PORT\n\
-" > /root/.streamlit/config.toml'
 
-# ENV PORT=8501
-EXPOSE 8501
+
+# RUN mkdir -p /root/.streamlit
+# RUN bash -c 'echo -e "\
+# [general]\n\
+# email = \"\"\n\
+# " > /root/.streamlit/credentials.toml'
+
+# RUN bash -c 'echo -e "\
+# [server]\n\
+# enableCORS = false\n\
+# " > /root/.streamlit/config.toml'
+
+# EXPOSE 8501
 
 # --------------- Run the image as a non-root user: Heroku
-RUN useradd -m myuser
-USER myuser
+# RUN useradd -m myuser
+# USER myuser
 
 # --------------- Run the app
-CMD streamlit run main.py --server.port 8501 --server.enableCORS false
+CMD streamlit run main.py --server.port $PORT --server.enableCORS false
