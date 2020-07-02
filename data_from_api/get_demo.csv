@@ -1,2 +1,2 @@
-confMask,classIds,total_faces,confFace,bboxes,time_per_frame
-"[99.39213991165161, 99.92938041687012]","['face', 'face', 'Mask', 'Mask']",2,"[81.2832772731781, 62.078750133514404]","[[111, 252, 321, 515], [521, 188, 740, 494]]",0.553985595703125
+total_object,predClasses,confidences,bboxes,time_per_frame
+1,['person'],[0.9899734258651731],"[[96, 109, 942, 675]]",0.17987966537475503

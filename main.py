@@ -591,13 +591,14 @@ def main():
         # url_base = "http://0.0.0.0:8000/"
         # url_base = "http://0.0.0.0:8000/"
         url_base = "http://inveesion-api:8000/"
+        url_base = "http://localhost:8000/"
 
         if guiParam['appType'] == 'Image Application':
             __, image_byte = DataManager(guiParam).load_image_or_video()
 
             if st.button("[INFO] Calling InVeesion-API"):
-                print((type(image_byte))
-                files = [("image", image_byte)]
+                print(type(image_byte))
+                files = {"image":("image", image_byte, 'image/jpeg')}
                 endpoint = "image-api/"
                 response = requests.request('POST', url_base + endpoint, params=guiParam, files=files)
 
@@ -638,7 +639,8 @@ def main():
 
             if st.button("[INFO] Calling InVeesion-API"):
     
-                files = [("video", video_byte)]   
+
+                files = {"video":("video", video_byte, 'video/mp4')}
                 endpoint = "video-api/"
                 response = requests.request(
                     'POST', url_base + endpoint, params=guiParam, files=files)
