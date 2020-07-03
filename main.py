@@ -307,8 +307,46 @@ class DataManager:
         self.data = None
         self.data_byte = None
 
-  #--------------------------------------------------------#
-  #--------------------------------------------------------#
+    #--------------------------------------------------------#
+    #--------------------------------------------------------#
+    
+    def get_image_path(self):
+        #--------------------------------------------#
+        if self.guiParam["dataSource"] == 'Database':
+            image_path = st.text_input('Enter the image PATH')
+
+            if image_path == '':
+                image_path_idx = st.selectbox('Or select a demo image from the list', list(self.demo_image_examples.keys()))
+                image_path = self.demo_image_examples[image_path_idx]
+            return image_path
+
+        #--------------------------------------------#
+
+        elif self.guiParam["dataSource"] == 'Upload':
+            filelike = st.file_uploader('Upload an image', type=['png', 'jpg'])
+            image_path = 'database/uploaded_image.png'
+
+            if filelike != None:
+                with open(image_path, 'wb') as f:
+                    f.write(filelike.read())
+                return image_path
+            else:
+                raise ValueError('Please Upload an image first')
+
+        #--------------------------------------------#
+        
+        elif self.guiParam["dataSource"] == 'URL':
+            url_image = st.text_input('Enter the image URL')
+            image_path = 'database/downloaded_image.png'
+
+            if url_image == "":
+                url_image_idx = st.selectbox('Or select a URL from the list', list(self.url_demo_images.keys()))
+                url_image = self.url_demo_images[url_image_idx]             
+                
+            with open(image_path, 'wb') as f:
+                f.write(urllib.request.urlopen(url_image).read())
+                return image_path
+                
 
     def load_image_source(self):
         """
@@ -323,7 +361,9 @@ class DataManager:
                     im_byte = f.read()
                 im_ndarr = np.frombuffer(im_byte, dtype=np.uint8)
                 im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
-                return im_rgb, im_byte
+                return im_rgb, filelike
+                
+                image_path
 
             file_path = st.text_input('Enter the image PATH')
 
@@ -348,10 +388,11 @@ class DataManager:
 
             @st.cache(allow_output_mutation=True)
             def load_image_from_upload(file):
-                im_byte = file.read()
-                im_ndarr = np.frombuffer(im_byte, dtype=np.uint8)
-                im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
-                return im_rgb, im_byte
+                filelike = file
+                # im_ndarr = np.frombuffer(im_byte, dtype=np.uint8)
+                # im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
+                im_rgb = []
+                return im_rgb, filelike
 
             file_path = st.file_uploader(
                 'Upload an image', type=['png', 'jpg'])
@@ -364,6 +405,7 @@ class DataManager:
             #--------------------------------------------#
             #--------------------------------------------#
 
+    
         elif self.guiParam["dataSource"] == 'URL':
 
             @st.cache(allow_output_mutation=True)
@@ -588,19 +630,18 @@ def main():
         # url_base="https://inveesion-api.herokuapp.com/"
         # url_base = "http://localhost:8000/"
         # url_base = "https://api.inveesion.com/"
-        # url_base = "http://0.0.0.0:8000/"
-        # url_base = "http://0.0.0.0:8000/"
         url_base = "http://inveesion-api:8000/"
         url_base = "http://localhost:8000/"
 
         if guiParam['appType'] == 'Image Application':
-            __, image_byte = DataManager(guiParam).load_image_or_video()
+            # __, image_byte = DataManager(guiParam).load_image_or_video()
+            image_path = DataManager(guiParam).get_image_path()
 
-            if st.button("[INFO] Calling InVeesion-API"):
-                print(type(image_byte))
-                files = {"image":("image", image_byte, 'image/jpeg')}
-                endpoint = "image-api/"
-                response = requests.request('POST', url_base + endpoint, params=guiParam, files=files)
+            if st.button("InVeesion-API"):
+                with open(image_path, 'rb') as filelike :
+                    files = {"image":("image", filelike, 'image/jpeg')}
+                    endpoint = "image-api/"
+                    response = requests.request('POST', url_base + endpoint, params=guiParam, files=files)
 
                 print(response.url)
 

@@ -1,2 +1,2 @@
-total_object,predClasses,confidences,bboxes,time_per_frame
-1,['person'],[0.9899734258651731],"[[96, 109, 942, 675]]",0.17987966537475503
+classIds,total_faces,confFace,bboxes,time_per_frame
+[],0,[],[],0.022166728973388002
