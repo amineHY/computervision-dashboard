@@ -755,7 +755,7 @@ def main():
         # url_base = "http://localhost:8000/"
         # url_base = "https://api.inveesion.com/"
         url_base = "http://inveesion-api:8000/"
-        url_base = "http://localhost:8000/"
+        # url_base = "http://localhost:8000/"
 
         if guiParam['appType'] == 'Image Application':
             # __, image_byte = DataManager(guiParam).load_image_or_video()
