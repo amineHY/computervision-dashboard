@@ -14,7 +14,7 @@ RUN apt-get update -qq && apt-get -y install \
 # --------------- Install python packages using `pip` ---------------
 COPY requirements.txt $APP_HOME
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt 
+    pip install -r requirements.txt --upgrade 
 
 # --------------- Export envirennement variable ---------------
 ENV LC_ALL=C.UTF-8

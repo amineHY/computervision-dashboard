@@ -5,7 +5,7 @@ streamlit
 numpy
 pandas
 matplotlib
-
+plotly
 # Send Request
 requests
 

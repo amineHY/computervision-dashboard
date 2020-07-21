@@ -9,21 +9,27 @@ Github: https://github.com/amineHY
 import base64
 import os
 import urllib
+from collections import Counter
 from io import BytesIO
 
 import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
-# import pafy
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 import requests
 import streamlit as st
 import youtube_dl
+from matplotlib import pyplot as plt
+from plotly.offline import init_notebook_mode, iplot
+from plotly.subplots import make_subplots
 
 print(__doc__)
 
 #----------------------------------------------------------------#
 #----------------------------------------------------------------#
+
 
 class GUI():
     """
@@ -273,13 +279,76 @@ class GUI():
         self.guiParam.update(dict(model=model))
 
 #----------------------------------------------------------------#
+
+
+def hide_streamlit_footer():
+    hide_footer_style = """
+    <style>
+    .reportview-container .main footer {visibility: hidden;}    
+    """
+    st.markdown(hide_footer_style, unsafe_allow_html=True)
+
+#----------------------------------------------------------------#
+def postprocessing_object_detection_df(df):
+    df_ = df.copy()
+
+    # unwrap bboxes
+    df_.bboxes = df.bboxes.apply(lambda x: pd.eval(x))
+    df_.confidences = df.confidences.apply(lambda x: pd.eval(x))
+    df_.predClasses = df.predClasses.apply(lambda x: pd.eval(x))
+
+    if "predClasses" in df_.columns:
+        df_.loc[:, 'counting_obj'] = df_["predClasses"].apply(
+            lambda x: Counter(x)).values
+        df_.loc[:, 'objectClass'] = df_.loc[:, 'counting_obj'].apply(lambda x: list(x.keys())).values
+        df_.loc[:, 'objectNumb'] = df_.loc[:, 'counting_obj'].apply(
+            lambda x: list(x.values())).values
+        
+        df_classes = pd.DataFrame(df_.counting_obj.to_dict()).T
+        dataf = df_.join(df_classes)
+
+    return dataf, df_classes
+
+
+def disp_analytics(df, df_classes):
+    if len(df_classes.columns)>0:
+        st.markdown("## Global Analytics")
+        fig = px.bar(x=df_classes.columns, y=df_classes.sum())
+        fig.update_layout(height=400, width=900, title_text="...", yaxis=dict(
+            title_text="Number of Detection"), xaxis=dict(title_text="Detection Object in the Video"))
+        st.plotly_chart(fig)
+
+        fig = px.pie(df_classes, values=df_classes.sum(),
+                    names=df_classes.columns, title='Detected Objects in the Video')
+        st.plotly_chart(fig)
+
+        fig = make_subplots(rows=len(df_classes.columns), cols=1)
+        for idx, feat in enumerate(df_classes.columns):
+            fig.add_trace(
+                go.Scatter(x=df.frameIdx,
+                        y=df[feat], mode='lines+markers', name=feat),
+                row=idx+1, col=1)
+        tmp = (len(df_classes.columns))*400
+        fig.update_layout(height=tmp, width=900, title_text="Objects Filtering")
+        st.plotly_chart(fig)
+
+        fig = px.scatter(x=df.frameIdx, y=df.total_object)
+        fig.update_layout(height=400, width=900,
+                        title_text="Total Detection per frame")
+        st.plotly_chart(fig)
+
+        st.markdown("## Motion Analytics")
+        fig = make_subplots(rows=2, cols=1, shared_xaxes=True,
+                            vertical_spacing=0.02)
+        fig.add_trace(go.Scatter(x=df.frameIdx,
+                                y=df.motion_status, mode='lines'), row=1, col=1)
+        fig.update_layout(height=600, width=900, title_text="Detected Motion in the Video", yaxis=dict(
+            title_text="Motion Status"), xaxis=dict(title_text="Timestamp"))
+        st.plotly_chart(fig)
+
 #----------------------------------------------------------------#
 
-
 class DataManager:
-    """
-    """
-
     def __init__(self, guiParam):
         self.guiParam = guiParam
 
@@ -309,14 +378,72 @@ class DataManager:
 
     #--------------------------------------------------------#
     #--------------------------------------------------------#
-    
+
+    def get_video_path(self):
+
+        if self.guiParam["dataSource"] == 'Upload':
+            filelike = st.file_uploader(
+                "Upload a video (200 Mo maximum) ...", type=["mp4", "mpeg", 'avi'])
+
+            video_path = 'database/uploaded_video.png'
+
+            if filelike:
+                with open(video_path, 'wb') as f:
+                    f.write(filelike.read())
+                return video_path
+            else:
+                return None
+
+            #------------------------------------------------------#
+
+        elif self.guiParam["dataSource"] == 'Database':
+
+            video_path = st.text_input('Enter PATH of the video')
+
+            if os.path.isfile(video_path):
+                return video_path
+
+            else:
+                video_path_idx = st.selectbox(
+                    'Or select a demo video from the list', list(self.demo_video_examples.keys()))
+                video_path = self.demo_video_examples[video_path_idx]
+                return video_path
+
+            #------------------------------------------------------#
+
+        elif self.guiParam["dataSource"] == 'URL':
+
+            video_url = st.text_input('Enter URL of the video')
+            video_path = 'database/downloaded_video.mp4'
+
+            if video_url != "":
+                isinstance(video_url, str)
+                print('Downloading ', video_url)
+                ydl_opts = dict(
+                    format='bestvideo[height<=480]', outtmpl=video_path)
+                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                    ydl.download([video_url])
+                return video_path
+
+            else:
+                st.info("Here are some video samples" +
+                        "\n Driving car in a city: https://www.youtube.com/watch?v=7BjNbkONCFw \
+                \n A Sample Video with Faces: https://www.youtube.com/watch?v=ohmajJTcpNk")
+                video_url = 'https://www.youtube.com/watch?v=7BjNbkONCFw'
+
+            #------------------------------------------------------#
+
+        else:
+            raise ValueError("Please select a 'Data Source' from the list")
+
     def get_image_path(self):
         #--------------------------------------------#
         if self.guiParam["dataSource"] == 'Database':
             image_path = st.text_input('Enter the image PATH')
 
             if image_path == '':
-                image_path_idx = st.selectbox('Or select a demo image from the list', list(self.demo_image_examples.keys()))
+                image_path_idx = st.selectbox(
+                    'Or select a demo image from the list', list(self.demo_image_examples.keys()))
                 image_path = self.demo_image_examples[image_path_idx]
             return image_path
 
@@ -334,19 +461,19 @@ class DataManager:
                 raise ValueError('Please Upload an image first')
 
         #--------------------------------------------#
-        
+
         elif self.guiParam["dataSource"] == 'URL':
             url_image = st.text_input('Enter the image URL')
             image_path = 'database/downloaded_image.png'
 
-            if url_image == "":
-                url_image_idx = st.selectbox('Or select a URL from the list', list(self.url_demo_images.keys()))
-                url_image = self.url_demo_images[url_image_idx]             
-                
-            with open(image_path, 'wb') as f:
-                f.write(urllib.request.urlopen(url_image).read())
-                return image_path
-                
+            if url_image != "":
+                with open(image_path, 'wb') as f:
+                    f.write(urllib.request.urlopen(url_image).read())
+                    return image_path
+            else:
+                url_image_idx = st.selectbox(
+                    'Or select a URL from the list', list(self.url_demo_images.keys()))
+                url_image = self.url_demo_images[url_image_idx]
 
     def load_image_source(self):
         """
@@ -362,7 +489,7 @@ class DataManager:
                 im_ndarr = np.frombuffer(im_byte, dtype=np.uint8)
                 im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
                 return im_rgb, filelike
-                
+
                 image_path
 
             file_path = st.text_input('Enter the image PATH')
@@ -405,7 +532,6 @@ class DataManager:
             #--------------------------------------------#
             #--------------------------------------------#
 
-    
         elif self.guiParam["dataSource"] == 'URL':
 
             @st.cache(allow_output_mutation=True)
@@ -489,10 +615,9 @@ class DataManager:
 
             if file_path != "":
                 self.video, self.video_byte = load_video_from_upload(file_path)
-            else :
+            else:
                 st.info("Please upload a valid image ('mp4', 'mpeg', 'avi')")
-            
-            
+
             # if video_url != "":
             #     self.video, self.video_byte = load_video_from_url(video_url)
             # else:
@@ -555,13 +680,13 @@ class DataManager:
                 print('Downloading ', video_url)
 
                 ydl_opts = {
-                    
+
                     'format': 'bestvideo[height<=480]',
-                    'outtmpl':'database/tmp.mp4'
-                    }
+                    'outtmpl': 'database/tmp.mp4'
+                }
                 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                     ydl.download([video_url])
-                print(ydl)  
+                print(ydl)
                 # video = pafy.new(video_url)
                 # videoHightRes = video.getbest(preftype="mp4")
                 # videoHightRes.download('database/demso.mp4')
@@ -580,10 +705,10 @@ class DataManager:
             if video_url != "":
                 self.video, self.video_byte = load_video_from_url(video_url)
             else:
-                st.info("Here are some video samples"+
-                "\n Driving car in a city: https://www.youtube.com/watch?v=7BjNbkONCFw \
+                st.info("Here are some video samples" +
+                        "\n Driving car in a city: https://www.youtube.com/watch?v=7BjNbkONCFw \
                 \n A Sample Video with Faces: https://www.youtube.com/watch?v=ohmajJTcpNk"
-                )
+                        )
             # elif video_url == "":
             #     video_url_idx = st.selectbox(
             #         'Or select a URL from the list', list(self.url_demo_videos.keys()))
@@ -603,7 +728,6 @@ class DataManager:
         return self.video, self.video_byte
 
 #----------------------------------------------------------------#
-#----------------------------------------------------------------#
 
 
 def main():
@@ -619,7 +743,7 @@ def main():
     }
 
     guiParam.update(paths)
-    
+
     #----------------------------------------------------------------#
     # Send Request to inveesion-API
     #----------------------------------------------------------------#
@@ -638,10 +762,11 @@ def main():
             image_path = DataManager(guiParam).get_image_path()
 
             if st.button("InVeesion-API"):
-                with open(image_path, 'rb') as filelike :
-                    files = {"image":("image", filelike, 'image/jpeg')}
+                with open(image_path, 'rb') as filelike:
+                    files = {"image": ("image", filelike, 'image/jpeg')}
                     endpoint = "image-api/"
-                    response = requests.request('POST', url_base + endpoint, params=guiParam, files=files)
+                    response = requests.request(
+                        'POST', url_base + endpoint, params=guiParam, files=files)
 
                 print(response.url)
 
@@ -652,7 +777,6 @@ def main():
                     res_json = response.json()['response']
                     keys = list(res_json.keys())
                     values = list(res_json.values())
-
 
                     # parse response and extract data (image + csv)
                     with open(paths["received_data"]+'get_demo.png', 'wb') as im_byte:
@@ -675,16 +799,16 @@ def main():
         #----------------------------------------------------------------#
 
         elif guiParam['appType'] == 'Video Application':
-            video_path, video_byte = DataManager(guiParam).load_image_or_video()
+            # video_path, video_byte = DataManager(guiParam).load_image_or_video()
+            video_path = DataManager(guiParam).get_video_path()
 
+            if st.button("InVeesion-API"):
 
-            if st.button("[INFO] Calling InVeesion-API"):
-    
-
-                files = {"video":("video", video_byte, 'video/mp4')}
-                endpoint = "video-api/"
-                response = requests.request(
-                    'POST', url_base + endpoint, params=guiParam, files=files)
+                with open(video_path, 'rb') as filelike:
+                    files = {"video": ("video", filelike, 'video/mp4')}
+                    endpoint = "video-api/"
+                    response = requests.request(
+                        'POST', url_base + endpoint, params=guiParam, files=files)
 
                 print(response.url)
 
@@ -696,17 +820,16 @@ def main():
                     keys = list(res_json.keys())
                     values = list(res_json.values())
 
-
-
                     # parse response and extract data (video + csv)
                     with open(paths["received_data"]+'get_demo.avi', 'wb') as vid_byte:
                         vid_byte.write(base64.b64decode(values[0]))
                     with open(paths["received_data"]+'get_demo.csv', 'wb') as csv_byte:
                         csv_byte.write(base64.b64decode(values[1]))
                     video_path = paths["received_data"]+'get_demo.avi'
-                    
-                    os.system( "ffmpeg -y -i "+video_path+" -vcodec libx264 "+video_path[:-4]+".mp4 && rm "+video_path)
-                    
+
+                    os.system("ffmpeg -y -i "+video_path+" -vcodec libx264 " +
+                              video_path[:-4]+".mp4 && rm "+video_path)
+
                     with open(video_path[:-4]+'.mp4', 'rb') as f:
                         st.video(f.read())
 
@@ -716,22 +839,10 @@ def main():
                     st.markdown(href, unsafe_allow_html=True)
 
                     st.dataframe(df)
-                    # st.area_chart( df,use_container_width=True)
-
-                    # plt.plot(df['frameIdx'], df['total_object']
-                    #          ), plt.xticks(rotation=80),
-                    # plt.plot(df['frameIdx'], df['motion_status']
-                    #          ), plt.xticks(rotation=80),
-                    # st.pyplot()
-                    # plt.plot(df['frameIdx'], df['pixel_count']
-                    #          ), plt.xticks(rotation=80),
-                    # st.pyplot()
-
-                    # st.area_chart(df[['total_object']])
-                    # st.area_chart(df[['motion_status']])
-                    # st.area_chart(df['predClasses'])
-                    # # display data in the frontend
-                    # if response.json()["media"] == "image":
+                    if guiParam['selectedApp']  in ['Object Detection', 'Face Detection']:
+                        df_, df_classes = postprocessing_object_detection_df(df)
+                        st.dataframe(df_)
+                        disp_analytics(df_, df_classes)
 
                 else:
                     print('\nRequest returned an error: ', response.status_code)
@@ -739,18 +850,9 @@ def main():
     else:
         st.warning("Please select an application")
 
-    # Hide the streamlit footer
-    #----------------------------------------------------------------#
-    hide_footer_style = """
-    <style>
-    .reportview-container .main footer {visibility: hidden;}    
-    """
-    st.markdown(hide_footer_style, unsafe_allow_html=True)
-
-
-#----------------------------------------------------------------#
 #----------------------------------------------------------------#
 #----------------------------------------------------------------#
 
 if __name__ == "__main__":
     main()
+    hide_streamlit_footer()
