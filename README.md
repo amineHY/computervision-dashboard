@@ -22,6 +22,11 @@
 - Apply Deep learning models
 - Export KPI to a CSV file
 - Display Analytics
+- It is designer with a modular architecture, where each app is a class
+- Librairies: OpenCV, Python, pandas, Tensorflow, Streamlit
+- Backend and Frontend separated
+- Frontend developed using python and streamlit
+- Backend developed i python and FastAPI
 
 ---
 ## Demo
