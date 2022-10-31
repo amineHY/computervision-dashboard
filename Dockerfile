@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM python:3.10.8
 
 LABEL maintainer "Amine Hadj-Youcef  <hadjyoucef.amine@gmail.com>"
 # www.amine-hy.com
