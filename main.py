@@ -117,7 +117,7 @@ def main():
         # ----------------------------------------------------------------#
 
         elif guiParam["appType"] == "Video Application":
-            # Get the image_path depending on data source
+            # Get the video_path depending on data source
             video_path = F.DataManager(guiParam).get_video_path()
 
             # Trigger the API only if the button 'RUN' is pressed

@@ -450,256 +450,258 @@ class DataManager:
                     f.write(urllib.request.urlopen(url_image).read())
                     return image_path
 
-    def load_image_source(self):
-        """ """
 
-        if self.guiParam["dataSource"] == "Database":
 
-            @st.cache(allow_output_mutation=True)
-            def load_image_from_path(image_path):
-                # im_rgb = cv.imread(image_path, cv.IMREAD_COLOR)
-                with open(image_path, "rb") as f:
-                    im_byte = f.read()
-                    im_ndarr = np.frombuffer(im_byte, dtype=np.uint8)
-                    im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
-                    return im_rgb, f
+    # def load_image_source(self):
+    #     """ """
 
-                image_path
+    #     if self.guiParam["dataSource"] == "Database":
 
-            file_path = st.text_input("Enter the image PATH")
+    #         @st.cache(allow_output_mutation=True)
+    #         def load_image_from_path(image_path):
+    #             # im_rgb = cv.imread(image_path, cv.IMREAD_COLOR)
+    #             with open(image_path, "rb") as f:
+    #                 im_byte = f.read()
+    #                 im_ndarr = np.frombuffer(im_byte, dtype=np.uint8)
+    #                 im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
+    #                 return im_rgb, f
 
-            if os.path.isfile(file_path):
-                self.image, self.image_byte = load_image_from_path(image_path=file_path)
+    #             image_path
 
-            elif file_path == "":
-                file_path_idx = st.selectbox(
-                    "Or select a demo image from the list",
-                    list(self.demo_image_examples.keys()),
-                )
-                file_path = self.demo_image_examples[file_path_idx]
+    #         file_path = st.text_input("Enter the image PATH")
 
-                self.image, self.image_byte = load_image_from_path(image_path=file_path)
-            else:
-                raise ValueError("[Error] Please enter a valid image path")
+    #         if os.path.isfile(file_path):
+    #             self.image, self.image_byte = load_image_from_path(image_path=file_path)
 
-            # --------------------------------------------#
-            # --------------------------------------------#
+    #         elif file_path == "":
+    #             file_path_idx = st.selectbox(
+    #                 "Or select a demo image from the list",
+    #                 list(self.demo_image_examples.keys()),
+    #             )
+    #             file_path = self.demo_image_examples[file_path_idx]
 
-        elif self.guiParam["dataSource"] == "Upload":
+    #             self.image, self.image_byte = load_image_from_path(image_path=file_path)
+    #         else:
+    #             raise ValueError("[Error] Please enter a valid image path")
 
-            @st.cache(allow_output_mutation=True)
-            def load_image_from_upload(file):
-                filelike = file
-                # im_ndarr = np.frombuffer(im_byte, dtype=np.uint8)
-                # im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
-                im_rgb = []
-                return im_rgb, filelike
+    #         # --------------------------------------------#
+    #         # --------------------------------------------#
 
-            file_path = st.file_uploader("Upload an image", type=["png", "jpg"])
+    #     elif self.guiParam["dataSource"] == "Upload":
 
-            if file_path != None:
-                self.image, self.image_byte = load_image_from_upload(file_path)
-            elif file_path == None:
-                raise ValueError("[Error] Please upload a valid image ('png', 'jpg')")
-            # --------------------------------------------#
-            # --------------------------------------------#
+    #         @st.cache(allow_output_mutation=True)
+    #         def load_image_from_upload(file):
+    #             filelike = file
+    #             # im_ndarr = np.frombuffer(im_byte, dtype=np.uint8)
+    #             # im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
+    #             im_rgb = []
+    #             return im_rgb, filelike
 
-        elif self.guiParam["dataSource"] == "URL":
+    #         file_path = st.file_uploader("Upload an image", type=["png", "jpg"])
 
-            @st.cache(allow_output_mutation=True)
-            def load_image_from_url(url_image):
-                print("Downloading ...")
-                file = urllib.request.urlopen(url_image)
-                im_byte = file.read()
-                # tmp = np.asarray(bytearray(file.read()), dtype=np.uint8)
-                im_ndarr = np.frombuffer(im_byte, dtype=np.uint8)
-                im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
-                return im_rgb, im_byte
+    #         if file_path != None:
+    #             self.image, self.image_byte = load_image_from_upload(file_path)
+    #         elif file_path == None:
+    #             raise ValueError("[Error] Please upload a valid image ('png', 'jpg')")
+    #         # --------------------------------------------#
+    #         # --------------------------------------------#
 
-            file_path = st.text_input("Enter the image URL")
+    #     elif self.guiParam["dataSource"] == "URL":
 
-            if file_path != "":
-                self.image, self.image_byte = load_image_from_url(url_image=file_path)
+    #         @st.cache(allow_output_mutation=True)
+    #         def load_image_from_url(url_image):
+    #             print("Downloading ...")
+    #             file = urllib.request.urlopen(url_image)
+    #             im_byte = file.read()
+    #             # tmp = np.asarray(bytearray(file.read()), dtype=np.uint8)
+    #             im_ndarr = np.frombuffer(im_byte, dtype=np.uint8)
+    #             im_rgb = cv.imdecode(im_ndarr, cv.IMREAD_COLOR)
+    #             return im_rgb, im_byte
 
-            elif file_path == "":
+    #         file_path = st.text_input("Enter the image URL")
 
-                file_path_idx = st.selectbox(
-                    "Or select a URL from the list", list(self.url_demo_images.keys())
-                )
-                file_path = self.url_demo_images[file_path_idx]
+    #         if file_path != "":
+    #             self.image, self.image_byte = load_image_from_url(url_image=file_path)
 
-                self.image, self.image_byte = load_image_from_url(url_image=file_path)
-            else:
-                raise ValueError("[Error] Please enter a valid image URL")
+    #         elif file_path == "":
 
-            # --------------------------------------------#
-            # --------------------------------------------#
+    #             file_path_idx = st.selectbox(
+    #                 "Or select a URL from the list", list(self.url_demo_images.keys())
+    #             )
+    #             file_path = self.url_demo_images[file_path_idx]
 
-        else:
-            raise ValueError("Please select one source from the list")
+    #             self.image, self.image_byte = load_image_from_url(url_image=file_path)
+    #         else:
+    #             raise ValueError("[Error] Please enter a valid image URL")
 
-        return self.image, self.image_byte
+    #         # --------------------------------------------#
+    #         # --------------------------------------------#
 
-    def load_image_or_video(self):
-        """
-        Handle the data input from the user parameters
-        """
-        if self.guiParam["appType"] == "Image Application":
-            self.data, self.data_byte = self.load_image_source()
+    #     else:
+    #         raise ValueError("Please select one source from the list")
 
-        elif self.guiParam["appType"] == "Video Application":
-            self.data, self.data_byte = self.load_video_source()
+    #     return self.image, self.image_byte
 
-        else:
-            raise ValueError("[Error] Please select of the two Application pipelines")
+    # def load_image_or_video(self):
+    #     """
+    #     Handle the data input from the user parameters
+    #     """
+    #     if self.guiParam["appType"] == "Image Application":
+    #         self.data, self.data_byte = self.load_image_source()
 
-        return self.data, self.data_byte
+    #     elif self.guiParam["appType"] == "Video Application":
+    #         self.data, self.data_byte = self.load_video_source()
 
-    def check_video_object(self, video):
-        """ """
-        if video != None and video.isOpened():
-            print("[INFO] File is correctly openned")
+    #     else:
+    #         raise ValueError("[Error] Please select of the two Application pipelines")
 
-        else:
-            raise Exception(
-                "[Error] Could not open the video source: {}".format(
-                    self.guiParam["dataSource"]
-                )
-            )
+    #     return self.data, self.data_byte
 
-    def load_video_source(self):
-        """ """
-        # print(self.guiParam["dataSource"])
-        if self.guiParam["dataSource"] == "None":
-            self.video = None
-            st.warning("No application is selected.")
+    # def check_video_object(self, video):
+    #     """ """
+    #     if video != None and video.isOpened():
+    #         print("[INFO] File is correctly openned")
 
-            # ------------------------------------------------------#
-            # ------------------------------------------------------#
-        elif self.guiParam["dataSource"] == "Upload":
+    #     else:
+    #         raise Exception(
+    #             "[Error] Could not open the video source: {}".format(
+    #                 self.guiParam["dataSource"]
+    #             )
+    #         )
 
-            @st.cache(allow_output_mutation=True)
-            def load_video_from_upload(file_path):
-                return None, file_path
+    # def load_video_source(self):
+    #     """ """
+    #     # print(self.guiParam["dataSource"])
+    #     if self.guiParam["dataSource"] == "None":
+    #         self.video = None
+    #         st.warning("No application is selected.")
 
-            file_path = st.file_uploader(
-                "Upload a video (200 Mo maximum) ...", type=["mp4", "mpeg", "avi"]
-            )
+    #         # ------------------------------------------------------#
+    #         # ------------------------------------------------------#
+    #     elif self.guiParam["dataSource"] == "Upload":
 
-            if file_path != "":
-                self.video, self.video_byte = load_video_from_upload(file_path)
-            else:
-                st.info("Please upload a valid image ('mp4', 'mpeg', 'avi')")
+    #         @st.cache(allow_output_mutation=True)
+    #         def load_video_from_upload(file_path):
+    #             return None, file_path
 
-            # if video_url != "":
-            #     self.video, self.video_byte = load_video_from_url(video_url)
-            # else:
-            #     st.info("Here are some video samples"+
-            #     "\n Driving car in a city: https://www.youtube.com/watch?v=7BjNbkONCFw \
-            #     \n A Sample Video with Faces: https://www.youtube.com/watch?v=ohmajJTcpNk"
-            #     )
-            # ------------------------------------------------------#
-            # ------------------------------------------------------#
+    #         file_path = st.file_uploader(
+    #             "Upload a video (200 Mo maximum) ...", type=["mp4", "mpeg", "avi"]
+    #         )
 
-        elif self.guiParam["dataSource"] == "Database":
+    #         if file_path != "":
+    #             self.video, self.video_byte = load_video_from_upload(file_path)
+    #         else:
+    #             st.info("Please upload a valid image ('mp4', 'mpeg', 'avi')")
 
-            @st.cache(allow_output_mutation=True)
-            def load_video_from_path(video_path):
-                isinstance(video_path, str)
-                video = cv.VideoCapture(video_path)
-                with open(video_path, "rb") as f:
-                    video_byte = f.read()
-                    # print(type(video_byte))
-                return video_path, video_byte
+    #         # if video_url != "":
+    #         #     self.video, self.video_byte = load_video_from_url(video_url)
+    #         # else:
+    #         #     st.info("Here are some video samples"+
+    #         #     "\n Driving car in a city: https://www.youtube.com/watch?v=7BjNbkONCFw \
+    #         #     \n A Sample Video with Faces: https://www.youtube.com/watch?v=ohmajJTcpNk"
+    #         #     )
+    #         # ------------------------------------------------------#
+    #         # ------------------------------------------------------#
 
-            file_path = st.text_input("Enter PATH of the video")
+    #     elif self.guiParam["dataSource"] == "Database":
 
-            if os.path.isfile(file_path):
-                self.video, self.video_byte = load_video_from_path(file_path)
-            elif file_path == "":
-                file_path_idx = st.selectbox(
-                    "Or select a demo image from the list",
-                    list(self.demo_video_examples.keys()),
-                )
-                file_path = self.demo_video_examples[file_path_idx]
-                self.video, self.video_byte = load_video_from_path(video_path=file_path)
+    #         @st.cache(allow_output_mutation=True)
+    #         def load_video_from_path(video_path):
+    #             isinstance(video_path, str)
+    #             video = cv.VideoCapture(video_path)
+    #             with open(video_path, "rb") as f:
+    #                 video_byte = f.read()
+    #                 # print(type(video_byte))
+    #             return video_path, video_byte
 
-            else:
-                raise ValueError("[Error] Please enter a valid video path")
+    #         file_path = st.text_input("Enter PATH of the video")
 
-            # ------------------------------------------------------#
-            # ------------------------------------------------------#
+    #         if os.path.isfile(file_path):
+    #             self.video, self.video_byte = load_video_from_path(file_path)
+    #         elif file_path == "":
+    #             file_path_idx = st.selectbox(
+    #                 "Or select a demo image from the list",
+    #                 list(self.demo_video_examples.keys()),
+    #             )
+    #             file_path = self.demo_video_examples[file_path_idx]
+    #             self.video, self.video_byte = load_video_from_path(video_path=file_path)
 
-        # elif self.guiParam["dataSource"] == 'Webcam':
+    #         else:
+    #             raise ValueError("[Error] Please enter a valid video path")
 
-        #     @st.cache(allow_output_mutation=True)
-        #     def load_video_from_webcam(webcam_id):
-        #         isinstance(webcam_id, int)
-        #         video = cv.VideoCapture(webcam_id)
-        #         from time import time
-        #         time.sleep(2)
-        #         return video
+    #         # ------------------------------------------------------#
+    #         # ------------------------------------------------------#
 
-        #     webcam_id = 0  # default value, change it to the suitable device
-        #     self.video = load_video_from_webcam(webcam_id)
+    #     # elif self.guiParam["dataSource"] == 'Webcam':
 
-        # ------------------------------------------------------#
-        # ------------------------------------------------------#
+    #     #     @st.cache(allow_output_mutation=True)
+    #     #     def load_video_from_webcam(webcam_id):
+    #     #         isinstance(webcam_id, int)
+    #     #         video = cv.VideoCapture(webcam_id)
+    #     #         from time import time
+    #     #         time.sleep(2)
+    #     #         return video
 
-        elif self.guiParam["dataSource"] == "URL":
+    #     #     webcam_id = 0  # default value, change it to the suitable device
+    #     #     self.video = load_video_from_webcam(webcam_id)
 
-            @st.cache(allow_output_mutation=True)
-            def load_video_from_url(video_url):
-                isinstance(video_url, str)
-                print("Downloading ", video_url)
+    #     # ------------------------------------------------------#
+    #     # ------------------------------------------------------#
 
-                ydl_opts = {
-                    "format": "bestvideo[height<=480]",
-                    "outtmpl": "database/tmp.mp4",
-                }
-                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                    ydl.download([video_url])
-                print(ydl)
-                # video = pafy.new(video_url)
-                # videoHightRes = video.getbest(preftype="mp4")
-                # videoHightRes.download('database/demso.mp4')
-                with open("database/tmp.mp4", "rb") as f:
-                    video_byte = f.read()
-                    print("reading video")
-                os.system("rm database/tmp.mp4")
+    #     elif self.guiParam["dataSource"] == "URL":
 
-                video = None
-                return video, video_byte
+    #         @st.cache(allow_output_mutation=True)
+    #         def load_video_from_url(video_url):
+    #             isinstance(video_url, str)
+    #             print("Downloading ", video_url)
 
-            video_url = st.text_input("Enter URL of the video")
-            # st.info(
-            #     'Samples here: https://research.google.com/youtube8m/explore.html')
+    #             ydl_opts = {
+    #                 "format": "bestvideo[height<=480]",
+    #                 "outtmpl": "database/tmp.mp4",
+    #             }
+    #             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+    #                 ydl.download([video_url])
+    #             print(ydl)
+    #             # video = pafy.new(video_url)
+    #             # videoHightRes = video.getbest(preftype="mp4")
+    #             # videoHightRes.download('database/demso.mp4')
+    #             with open("database/tmp.mp4", "rb") as f:
+    #                 video_byte = f.read()
+    #                 print("reading video")
+    #             os.system("rm database/tmp.mp4")
 
-            if video_url != "":
-                self.video, self.video_byte = load_video_from_url(video_url)
-            else:
-                st.info(
-                    "Here are some video samples"
-                    + "\n Driving car in a city: https://www.youtube.com/watch?v=7BjNbkONCFw \
-                \n A Sample Video with Faces: https://www.youtube.com/watch?v=ohmajJTcpNk"
-                )
-            # elif video_url == "":
-            #     video_url_idx = st.selectbox(
-            #         'Or select a URL from the list', list(self.url_demo_videos.keys()))
-            #     video_url = self.url_demo_videos[video_url_idx]
-            #     self.video, self.video_byte = load_video_from_url(video_url)
+    #             video = None
+    #             return video, video_byte
 
-            # else:
-            #     raise ValueError("[Error] Please enter a valid video URL")
+    #         video_url = st.text_input("Enter URL of the video")
+    #         # st.info(
+    #         #     'Samples here: https://research.google.com/youtube8m/explore.html')
 
-            # ------------------------------------------------------#
+    #         if video_url != "":
+    #             self.video, self.video_byte = load_video_from_url(video_url)
+    #         else:
+    #             st.info(
+    #                 "Here are some video samples"
+    #                 + "\n Driving car in a city: https://www.youtube.com/watch?v=7BjNbkONCFw \
+    #             \n A Sample Video with Faces: https://www.youtube.com/watch?v=ohmajJTcpNk"
+    #             )
+    #         # elif video_url == "":
+    #         #     video_url_idx = st.selectbox(
+    #         #         'Or select a URL from the list', list(self.url_demo_videos.keys()))
+    #         #     video_url = self.url_demo_videos[video_url_idx]
+    #         #     self.video, self.video_byte = load_video_from_url(video_url)
 
-        else:
-            raise ValueError("Please select a 'Data Source' from the list")
+    #         # else:
+    #         #     raise ValueError("[Error] Please enter a valid video URL")
 
-        # self.check_video_object(self.video)
+    #         # ------------------------------------------------------#
 
-        return self.video, self.video_byte
+    #     else:
+    #         raise ValueError("Please select a 'Data Source' from the list")
+
+    #     # self.check_video_object(self.video)
+
+    #     return self.video, self.video_byte
 
 
 # ----------------------------------------------------------------#

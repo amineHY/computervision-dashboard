@@ -27,6 +27,7 @@ https://github.com/amineHY/computervision-dashboard.git
 - Redis : think about reducing the API call
 - Think about a use case
 - Update the GIFs
+- reduce duplicated code in the main file
 
 ---
 
