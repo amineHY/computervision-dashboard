@@ -1,4 +1,4 @@
-# :rocket: Computer Vision Dashboard :rocket
+# :rocket: Computer Vision Dashboard :rocket:
 
 ---
 
@@ -6,8 +6,7 @@
 
 [![Docker image](https://img.shields.io/badge/-Docker%20image-black?logo=docker)](https://hub.docker.com/repository/docker/aminehy/computervision-dashboard)
 
-
-- [:rocket: Computer Vision Dashboard :rocket](#rocket-computer-vision-dashboard-rocket)
+- [:rocket: Computer Vision Dashboard :rocket:](#rocket-computer-vision-dashboard-rocket)
   - [Table of content](#table-of-content)
   - [GitHub URL](#github-url)
   - [TODO](#todo)
@@ -126,8 +125,7 @@ Add and image architecture HERE
 
   ![image](images/2022-10-31-17-16-59.png)
 
-- Click on this adresse to open the dashboard on the browser  [Local URL](http://localhost:8502)
-  
+- Click on this adresse to open the dashboard on the browser [Local URL](http://localhost:8502)
 
   ![image](images/Peek%202022-10-31%2018-52.gif)
 
