@@ -36,6 +36,10 @@ Link to this [GitHub Repo](https://github.com/amineHY/computervision-dashboard.g
 - Think about a use case
 - Update the GIFs
 - reduce duplicated code in the main file
+- Create a release
+- track logger 
+- API : timestamp to processed_time
+- Add AirFlow
 
 ---
 

@@ -66,11 +66,15 @@ def main():
                 with open(image_path, "rb") as filelike:
                     print("Sending request to FastAPI...")
                     files = {"image": ("image", filelike, "image/jpeg")}
-                    endpoint = "image-api/"
+                    api_endpoint = "image-api/"
                     response = requests.request(
-                        "POST", api_url_base + endpoint, params=guiParam, files=files, timeout=360
+                        "POST",
+                        api_url_base + api_endpoint,
+                        params=guiParam,
+                        files=files,
+                        timeout=360,
                     )
-                print("[FastAPI Response] : ", response.url)
+                    print("[FastAPI Response] : ", response.url)
 
                 # Process the response from the API
                 if response.status_code == 200:
@@ -80,26 +84,31 @@ def main():
                     response_json = response.json()["response"]
                     values = list(response_json.values())
 
-                    # Parse the API response and extract data (image + csv)
+                    # Parse API response and extract data (image + csv)
                     img_overlay_path = paths["received_data"] + "img_overlay"
                     with open(img_overlay_path, "wb") as im_byte:
                         im_byte.write(base64.b64decode(values[0]))
-                    with open(
-                        paths["received_data"] + "csv_analytics.csv", "wb"
-                    ) as csv_byte:
+                    
+                    csv_path = paths["received_data"] + "csv_analytics.csv"
+                    with open(csv_path, "wb") as csv_byte:
                         csv_byte.write(base64.b64decode(values[1]))
 
+                    # Display image with overlay
                     st.image(
                         open(img_overlay_path, "rb").read(),
                         channels="BGR",
                         use_column_width=True,
                     )
-
+                    # Display link to download CSV file
                     href = f'<a href="data:file/csv;base64,{values[1]}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
                     st.markdown(href, unsafe_allow_html=True)
-                    st.dataframe(
-                        pd.read_csv(paths["received_data"] + "csv_analytics.csv")
-                    )
+                    
+                    # Display dataframe
+                    df_silver = pd.read_csv(csv_path)
+                    
+                    st.markdown('## Display Received Analytics from the API')
+                    st.dataframe(df_silver)
+
                 else:
                     print("\n[API] Failure: ", response.status_code)
 
@@ -116,11 +125,15 @@ def main():
                 with open(video_path, "rb") as filelike:
                     print("Sending request to FastAPI...")
                     files = {"video": ("video", filelike, "video/mp4")}
-                    endpoint = "video-api/"
+                    api_endpoint = "video-api/"
                     response = requests.request(
-                        "POST", api_url_base + endpoint, params=guiParam, files=files, timeout=360
+                        "POST",
+                        api_url_base + api_endpoint,
+                        params=guiParam,
+                        files=files,
+                        timeout=360,
                     )
-                print("[FastAPI Response] : ", response.url)
+                    print("[FastAPI Response] : ", response.url)
 
                 # Process the response from the API
                 if response.status_code == 200:
@@ -130,10 +143,11 @@ def main():
                     response_json = response.json()["response"]
                     values = list(response_json.values())
 
-                    # Parse the API response and extract data (video + csv)
+                    # Parse API response and extract data (video + csv)
                     vid_overlay_path = paths["received_data"] + "vid_overlay.avi"
                     with open(vid_overlay_path, "wb") as vid_byte:
                         vid_byte.write(base64.b64decode(values[0]))
+
                     csv_path = paths["received_data"] + "csv_analytics.csv"
                     with open(csv_path, "wb") as csv_byte:
                         csv_byte.write(base64.b64decode(values[1]))
@@ -148,10 +162,11 @@ def main():
                         + ".mp4 && rm "
                         + vid_overlay_path
                     )
-
+                    # Display video with overlay
                     with open(vid_overlay_path[:-4] + ".mp4", "rb") as f:
                         st.video(f.read())
-
+                    
+                    # Display link to download CSV file
                     href = f'<a href="data:file/csv;base64,{values[1]}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
                     st.markdown(href, unsafe_allow_html=True)
 
@@ -161,10 +176,12 @@ def main():
                         "Object Detection",
                         "Face Detection",
                     ]:
-                        df = pd.read_csv(csv_path)
-                        df_, df_classes = F.postprocessing_object_detection_df(df)
-                        st.dataframe(df_)
-                        F.disp_analytics(df_, df_classes)
+                        df_silver = pd.read_csv(csv_path)
+                        df_gold = F.postprocessing_object_detection_df(df_silver)
+                        
+                        st.markdown('## Display Received Analytics from the API')
+                        st.dataframe(df_gold)
+                        F.plot_analytics(df_gold)
 
                 else:
                     print("\n[API] Failure: ", response.status_code)

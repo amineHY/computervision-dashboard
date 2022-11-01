@@ -9,12 +9,10 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 
-
 # import matplotlib.pyplot as plt
 # import cv2 as cv
 # import numpy as np
 # import youtube_dl
-
 
 
 # ----------------------------------------------------------------#
@@ -189,7 +187,6 @@ class GUI:
             label="Select available model", options=(["MobileNetSSD"])
         )
 
-        
         confThresh = st.sidebar.slider(
             "Confidence", value=0.60, min_value=0.0, max_value=1.00, step=0.05
         )
@@ -207,7 +204,6 @@ class GUI:
             label="Select available model", options=(["MobileNetSSD"])
         )
 
-        
         confThresh = st.sidebar.slider(
             "Confidence", value=0.60, min_value=0.0, max_value=1.00, step=0.05
         )
@@ -224,7 +220,6 @@ class GUI:
             label="Select available model", options=(["MobileNetSSD"])
         )
 
-        
         confThresh = st.sidebar.slider(
             "Confidence", value=0.60, min_value=0.0, max_value=1.00, step=0.05
         )
@@ -237,7 +232,7 @@ class GUI:
         """
         This function update the dictionary guiParam (from the self class) with parameters of FaceDetection App
         """
-        
+
         model = st.sidebar.selectbox(
             label="Select available model",
             options=["Caffe-MobileNetSSD", "Darknet-YOLOv3-tiny", "Darknet-YOLOv3"],
@@ -252,7 +247,6 @@ class GUI:
 
         allowedLabel = ["all"] if len(allowedLabel) == 0 else allowedLabel
 
-        
         confThresh = st.sidebar.slider(
             "Confidence", value=0.6, min_value=0.0, max_value=1.0
         )
@@ -283,7 +277,6 @@ class GUI:
             label="Select available model", options=["Darknet-YOLOv3-tiny"]
         )
 
-        
         confThresh = st.sidebar.slider(
             "Confidence", value=0.6, min_value=0.0, max_value=1.0
         )
@@ -305,7 +298,7 @@ class GUI:
         """
         This function update the dictionary guiParam (from the self class) with parameters of CarCounting App
         """
-        
+
         model = st.sidebar.selectbox(
             label="Select available model", options=("Model 1", "Model 2", "Model 3")
         )
@@ -325,12 +318,12 @@ class DataManager:
         self.url_demo_images = {
             "image NY-City": "https://s4.thingpic.com/images/8a/Qcc4eLESvtjiGswmQRQ8ynCM.jpeg",
             "image Paris-street": "https://www.discoverwalks.com/blog/wp-content/uploads/2018/08/best-streets-in-paris.jpg",
-            "image people": "https://www.rembrandtmall.co.za/wp-content/uploads/2019/05/people-1.jpg"
+            "image people": "https://www.rembrandtmall.co.za/wp-content/uploads/2019/05/people-1.jpg",
         }
 
         self.demo_video_examples = {
-            "Street-CCTV": guiParam["path_database"] + "object.mp4",
-            "Showroom": guiParam["path_database"] + "showroom.mov",
+            "video Street-CCTV": guiParam["path_database"] + "object.mp4",
+            "video Showroom": guiParam["path_database"] + "showroom.mov",
         }
         self.demo_image_examples = {
             "image COVID-19 Mask": guiParam["path_database"] + "face_mask.jpeg",
@@ -455,8 +448,6 @@ class DataManager:
                 with open(image_path, "wb") as f:
                     f.write(urllib.request.urlopen(url_image).read())
                     return image_path
-
-
 
     # def load_image_source(self):
     #     """ """
@@ -715,107 +706,130 @@ class DataManager:
 # ----------------------------------------------------------------#
 
 
-def postprocessing_object_detection_df(df):
+def postprocessing_object_detection_df(df_silver):
     """_summary_
 
     Args:
-        df (DataFrame): _description_
+        df_silver (DataFrame): _description_
 
     Returns:
         _type_: _description_
     """
 
-    df_ = df.copy()
+    df_gold = df_silver.copy()
 
-    # Unwrap bboxes
-    df_.bboxes = df.bboxes.apply(pd.eval)
-    df_.confidences = df.confidences.apply(pd.eval)
-    df_.predClasses = df.predClasses.apply(pd.eval)
+    # Unwrap bounding boxes (bboxes)
+    df_gold["bboxes"] = df_gold["bboxes"].apply(pd.eval)
+    df_gold["confidences"] = df_gold["confidences"].apply(pd.eval)
+    df_gold["predClasses"] = df_gold["predClasses"].apply(pd.eval)
 
-    if "predClasses" in df_.columns:
-        df_.loc[:, "counting_obj"] = (
-            df_["predClasses"].apply(Counter).values
+    if "predClasses" in df_gold.columns:
+        df_gold.loc[:, "counting_obj"] = df_gold["predClasses"].apply(Counter).values
+        df_gold.loc[:, "object_class"] = (
+            df_gold.loc[:, "counting_obj"].apply(lambda x: list(x.keys())).values
         )
-        df_.loc[:, "objectClass"] = (
-            df_.loc[:, "counting_obj"].apply(lambda x: list(x.keys())).values
+        df_gold.loc[:, "object_count"] = (
+            df_gold.loc[:, "counting_obj"].apply(lambda x: list(x.values())).values
         )
-        df_.loc[:, "objectNumb"] = (
-            df_.loc[:, "counting_obj"].apply(lambda x: list(x.values())).values
-        )
-
-        df_classes = pd.DataFrame(df_.counting_obj.to_dict()).T
-        dataf = df_.join(df_classes)
-
-    return dataf, df_classes
+        df_gold = df_gold.join(pd.DataFrame(df_gold["counting_obj"].to_dict()).T)
+    return df_gold
 
 
-def disp_analytics(df, df_classes):
+def plot_analytics(df_gold):
     """This function allow display analytics that were gathered after applying a deep learning model
 
     Args:
-        df (DataFrame): This is a pandas dataframe that contains extracted analytics
+        df_gold (DataFrame): This is a pandas dataframe that contains extracted analytics
         df_classes (DataFrame): _description_
     """
+
+    df_classes = pd.DataFrame(df_gold["counting_obj"].to_dict()).T
+
     if len(df_classes.columns) > 0:
+
         st.markdown("## Global Analytics")
+        fig = make_subplots(
+            rows=1,
+            cols=2,
+            specs=[[{"type": "bar"}, {"type": "pie"}]],
+        )
 
         # Add a bar chart
-        fig = px.bar(x=df_classes.columns, y=df_classes.sum())
-        fig.update_layout(
-            height=400,
-            width=900,
-            title_text="...",
-            yaxis=dict(title_text="Number of Detection"),
-            xaxis=dict(title_text="Detection Object in the Video"),
-        )
-        fig.update_xaxes(showgrid=False)
-        fig.update_yaxes(showgrid=False)
-        st.plotly_chart(fig)
-
+        fig.add_trace(go.Bar(x=df_classes.columns, y=df_classes.sum()), row=1, col=1)
+        
         # Add Pie chart
-        fig = px.pie(
-            df_classes,
-            values=df_classes.sum(),
-            names=df_classes.columns,
-            title="Detected Objects in the Video",
-        )
-        fig.update_xaxes(showgrid=False)
-        fig.update_yaxes(showgrid=False)
-        st.plotly_chart(fig)
-
-        # Add a subplot of scatter plots
-        fig = make_subplots(rows=len(df_classes.columns), cols=1)
-        for idx, feat in enumerate(df_classes.columns):
-            fig.add_trace(
-                go.Scatter(x=df.frameIdx, y=df[feat], mode="lines+markers", name=feat),
-                row=idx + 1,
-                col=1,
-            )
-        tmp = (len(df_classes.columns)) * 400
-        fig.update_layout(height=tmp, width=900, title_text="Objects Filtering")
-        fig.update_xaxes(showgrid=False)
-        fig.update_yaxes(showgrid=False)
-
-        st.plotly_chart(fig)
-
-        fig = px.scatter(x=df.frameIdx, y=df.total_object)
-        fig.update_layout(height=400, width=900, title_text="Total Detection per frame")
-        fig.update_xaxes(showgrid=False)
-        fig.update_yaxes(showgrid=False)
-        st.plotly_chart(fig)
-
-        st.markdown("## Motion Analytics")
-        fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.02)
         fig.add_trace(
-            go.Scatter(x=df.frameIdx, y=df.motion_status, mode="lines"), row=1, col=1
+            go.Pie(
+                values=df_classes.sum(),
+                labels=df_classes.columns,
+            ),
+            row=1,
+            col=2,
         )
-        fig.update_layout(
-            height=600,
-            width=900,
-            title_text="Detected Motion in the Video",
-            yaxis=dict(title_text="Motion Status"),
-            xaxis=dict(title_text="Timestamp"),
+
+    fig.update_layout(
+        height=400,
+        width=900,
+        title_text="Detected Objects from the Video",
+        yaxis=dict(title_text="# of Detection"),
+        xaxis=dict(title_text="Detected Objects"),
+    )
+    fig.update_xaxes(showgrid=False)
+    fig.update_yaxes(showgrid=False)
+
+    st.plotly_chart(fig)
+
+
+
+    # Plot total detection per frame
+    fig = px.scatter(x=df_gold["frameIdx"], y=df_gold["total_object"])
+    fig.update_layout(height=500, width=900, title_text="Total Detection per frame")
+    fig.update_xaxes(showgrid=False)
+    fig.update_yaxes(showgrid=False)
+    st.plotly_chart(fig)
+
+    # Add a subplot per type of object
+    fig = make_subplots(
+        rows=len(df_classes.columns),
+        cols=1,
+        shared_xaxes=True,
+        subplot_titles=list(df_classes.columns),
+    )
+    for idx, feat in enumerate(df_classes.columns):
+        fig.add_trace(
+            go.Scatter(
+                x=df_gold["frameIdx"],
+                y=df_gold[feat],
+                mode="markers",
+                name=feat,
+            ),
+            row=idx + 1,
+            col=1,
         )
-        fig.update_xaxes(showgrid=False)
-        fig.update_yaxes(showgrid=False)
-        st.plotly_chart(fig)
+    tmp = (len(df_classes.columns)) * 300
+    fig.update_layout(height=tmp, width=900, title_text="Objects Filtering")
+    fig.update_xaxes(showgrid=False)
+    fig.update_yaxes(showgrid=False)
+
+    st.plotly_chart(fig)
+
+    st.markdown("## Motion Analysis")
+    # ----------------------------------------------------------------#
+
+    fig = make_subplots(rows=1, cols=1, shared_xaxes=True, vertical_spacing=0.02)
+    fig.add_trace(
+        go.Scatter(x=df_gold["timestamp"], y=df_gold["motion_status"], mode="lines"),
+        row=1,
+        col=1,
+    )
+
+    fig.update_layout(
+        height=500,
+        width=900,
+        title_text="Detected Motion in the Video",
+        yaxis=dict(title_text="Motion Status"),
+        xaxis=dict(title_text="Timestamp"),
+    )
+    fig.update_xaxes(showgrid=False)
+    fig.update_yaxes(showgrid=False)
+    st.plotly_chart(fig)
