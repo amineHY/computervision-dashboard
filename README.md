@@ -4,7 +4,8 @@
 
 ## Table of content
 
-[![Docker image](https://img.shields.io/badge/-Docker%20image-black?logo=docker)](https://hub.docker.com/r/aminehy/computervision_dashboard)
+[![Docker image](https://img.shields.io/badge/-Docker%20image-black?logo=docker)](https://hub.docker.com/repository/docker/aminehy/computervision-dashboard)
+
 
 - [:rocket: Computer Vision Dashboard :rocket](#rocket-computer-vision-dashboard-rocket)
   - [Table of content](#table-of-content)
