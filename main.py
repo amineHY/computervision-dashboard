@@ -5,22 +5,14 @@ Email: hadjyoucef.amine@gmail.com
 Github: https://github.com/amineHY/computervision-dashboard.git
 """
 # ----------------------------------------------------------------#
+
+
 import base64
 import os
-import urllib
-from collections import Counter
-from io import BytesIO
 
-import cv2 as cv
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
 import requests
 import streamlit as st
-import youtube_dl
-from matplotlib import pyplot as plt
 from plotly.offline import init_notebook_mode, iplot
 from plotly.subplots import make_subplots
 import src.functions as F

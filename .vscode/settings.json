@@ -1,3 +1,8 @@
 {
-    "python.pythonPath": "venv/bin/python"
+    "python.pythonPath": "venv/bin/python",
+    "todo-tree.tree.showBadges": false,
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+        "--enable=W0614"
+    ]
 }

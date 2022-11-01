@@ -1,3 +1,7 @@
+[![Docker image](https://img.shields.io/badge/-Docker%20image-black?logo=docker)](https://hub.docker.com/r/aminehy/computervision_dashboard)
+
+
+
 - [:rocket: Computer Vision Dashboard :rocket:](#rocket-computer-vision-dashboard-rocket)
   - [GitHub URL](#github-url)
   - [TODO](#todo)
@@ -11,10 +15,16 @@
       - [Prepare Python virtual environnement](#prepare-python-virtual-environnement)
       - [Run the dashboard](#run-the-dashboard)
     - [Run the dashboard from docker](#run-the-dashboard-from-docker)
-      - [Build the docker image](#build-the-docker-image)
+      - [(Optional) Build the docker image](#optional-build-the-docker-image)
       - [Run the dashboard](#run-the-dashboard-1)
+- [Tools](#tools)
 
 # :rocket: Computer Vision Dashboard :rocket:
+
+
+
+
+
 
 ---
 
@@ -126,18 +136,34 @@ Add and image architecture HERE
 
 ### Run the dashboard from docker
 
-#### Build the docker image
+#### (Optional) Build the docker image
 
+- Build docker image
 ```
-docker build -t computervision_dashboard .
+docker build -t aminehy/computervision-dashboard:latest .
 ```
+
+- Push the docker image to Docker Hub
+```
+docker login
+docker push aminehy/computervision-dashboard:latest
+```
+
 
 #### Run the dashboard
 
 ```
-docker run -it --rm computervision_dashboard:latest streamlit run main.py --server.port 8050
+docker run -it --rm aminehy/computervision-dashboard:latest streamlit run main.py --server.port 8050
 ```
 
 ![](images/2022-10-31-19-41-52.png)
 
 ---
+
+
+# Tools
+
+- Python
+- -Docker
+
+

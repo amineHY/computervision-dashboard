@@ -9,3 +9,5 @@ venv/
 heroku/
 other/
 media/
+
+.ipynb_checkpoints
