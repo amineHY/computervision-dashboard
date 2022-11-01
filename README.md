@@ -1,7 +1,6 @@
 - [:rocket: Computer Vision Dashboard :rocket:](#rocket-computer-vision-dashboard-rocket)
   - [GitHub URL](#github-url)
   - [TODO](#todo)
-  - [- Correct issurs: datasource:url, app: object detection](#--correct-issurs-datasourceurl-app-object-detection)
   - [Features](#features)
   - [Architecture](#architecture)
   - [Demo](#demo)
@@ -26,8 +25,7 @@ https://github.com/amineHY/computervision-dashboard.git
 ## TODO
 
 - Redis : Database
-- Check the readme
-- Code enhancement: Continue formatting, restructuring the code, ...
+- Think about a usecase
 - Update the GIFs
 
 
