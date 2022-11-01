@@ -2,7 +2,7 @@
 """
 Author: Amine Hadj-Youcef
 Email: hadjyoucef.amine@gmail.com
-Github: https://github.com/amineHY/inveesion-dashboard
+Github: https://github.com/amineHY/computervision-dashboard.git
 """
 # ----------------------------------------------------------------#
 import base64
@@ -40,7 +40,6 @@ def main():
     # Get parameters from the GUI
     # ----------------------------------------------------------------#
     guiParam = F.GUI().getGuiParameters()
-    api_param = guiParam.copy()
 
     # Define paths
     paths = {
@@ -55,7 +54,7 @@ def main():
     # Send Request to fastAPI
     # ----------------------------------------------------------------#
 
-    # Check if the selectApp is not empty
+    # Check if the selectedApp is not empty
     if guiParam["selectedApp"] != "Empty":
 
         # ----------------------------------------------------------------#
@@ -65,7 +64,7 @@ def main():
             "http://localhost:8000/"  # api_url_base = "http://inveesion-api:8000/"
         )
 
-        # If the selectApp is for images
+        # If the selectedApp is for images
         # ----------------------------------------------------------------#
         if guiParam["appType"] == "Image Application":
             # Get the image_path depending on data source
@@ -85,15 +84,15 @@ def main():
 
                 # Process the response from the API
                 if response.status_code == 200:
-                    print("\nSuccess: ", response.status_code)
+                    print("\n[API] Success: ", response.status_code)
 
                     st.markdown("## Results")
                     response_json = response.json()["response"]
-                    keys = list(response_json.keys())
                     values = list(response_json.values())
 
                     # Parse the API response and extract data (image + csv)
-                    with open(paths["received_data"] + "img_overlay", "wb") as im_byte:
+                    img_overlay_path = paths["received_data"] + "img_overlay"
+                    with open(img_overlay_path, "wb") as im_byte:
                         im_byte.write(base64.b64decode(values[0]))
                     with open(
                         paths["received_data"] + "csv_analytics.csv", "wb"
@@ -101,71 +100,73 @@ def main():
                         csv_byte.write(base64.b64decode(values[1]))
 
                     st.image(
-                        open(paths["received_data"] + "img_overlay", "rb").read(),
+                        open(img_overlay_path, "rb").read(),
                         channels="BGR",
                         use_column_width=True,
                     )
 
                     href = f'<a href="data:file/csv;base64,{values[1]}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
                     st.markdown(href, unsafe_allow_html=True)
-                    st.dataframe(pd.read_csv(paths["received_data"] + "csv_analytics.csv"))
+                    st.dataframe(
+                        pd.read_csv(paths["received_data"] + "csv_analytics.csv")
+                    )
                 else:
-                    print("\nRequest returned an error: ", response.status_code)
+                    print("\[API] Failure: ", response.status_code)
 
         # If the selectApp is for videos
         # ----------------------------------------------------------------#
 
         elif guiParam["appType"] == "Video Application":
-
+            # Get the image_path depending on data source
             video_path = F.DataManager(guiParam).get_video_path()
 
+            # Trigger the API only if the button 'RUN' is pressed
             if st.button("Run"):
 
                 with open(video_path, "rb") as filelike:
+                    print("Sending request to FastAPI...")
                     files = {"video": ("video", filelike, "video/mp4")}
                     endpoint = "video-api/"
                     response = requests.request(
                         "POST", api_url_base + endpoint, params=guiParam, files=files
                     )
+                print("[FastAPI Response] : ", response.url)
 
-                print(response.url)
-
+                # Process the response from the API
                 if response.status_code == 200:
-                    print("\nRequest is successful: ", response.status_code)
+                    print("\n[API] Success: ", response.status_code)
 
                     st.markdown("## Results")
                     response_json = response.json()["response"]
-                    keys = list(response_json.keys())
                     values = list(response_json.values())
 
-                    # parse response and extract data (video + csv)
-                    video_path = paths["received_data"] + "vid_overlay.avi"
-                    with open(video_path, "wb") as vid_byte:
+                    # Parse the API response and extract data (video + csv)
+                    vid_overlay_path = paths["received_data"] + "vid_overlay.avi"
+                    with open(vid_overlay_path, "wb") as vid_byte:
                         vid_byte.write(base64.b64decode(values[0]))
                     csv_path = paths["received_data"] + "csv_analytics.csv"
                     with open(csv_path, "wb") as csv_byte:
                         csv_byte.write(base64.b64decode(values[1]))
-                    
 
+                    # Convert video to mp4
+                    # ----------------------------------------------------------------#
                     os.system(
                         "ffmpeg -y -i "
-                        + video_path
+                        + vid_overlay_path
                         + " -vcodec libx264 "
-                        + video_path[:-4]
+                        + vid_overlay_path[:-4]
                         + ".mp4 && rm "
-                        + video_path
+                        + vid_overlay_path
                     )
 
-                    with open(video_path[:-4] + ".mp4", "rb") as f:
+                    with open(vid_overlay_path[:-4] + ".mp4", "rb") as f:
                         st.video(f.read())
-
-                    
 
                     href = f'<a href="data:file/csv;base64,{values[1]}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
                     st.markdown(href, unsafe_allow_html=True)
 
-                    # st.dataframe(df)
-
+                    # Display analytics
+                    # ----------------------------------------------------------------#
                     if guiParam["selectedApp"] in [
                         "Object Detection",
                         "Face Detection",
@@ -176,7 +177,7 @@ def main():
                         F.disp_analytics(df_, df_classes)
 
                 else:
-                    print("\nRequest returned an error: ", response.status_code)
+                    print("\n[API] Failure: ", response.status_code)
 
     else:
         st.warning("Please select an application from the sidebar menu")

@@ -1,7 +1,9 @@
 - [:rocket: Computer Vision Dashboard :rocket:](#rocket-computer-vision-dashboard-rocket)
   - [GitHub URL](#github-url)
   - [TODO](#todo)
+  - [- Correct issurs: datasource:url, app: object detection](#--correct-issurs-datasourceurl-app-object-detection)
   - [Features](#features)
+  - [Architecture](#architecture)
   - [Demo](#demo)
     - [Video Applications](#video-applications)
     - [Image Applications](#image-applications)
@@ -13,35 +15,47 @@
       - [Build the docker image](#build-the-docker-image)
       - [Run the dashboard](#run-the-dashboard-1)
 
-
 # :rocket: Computer Vision Dashboard :rocket:
 
 ---
 
-
 ## GitHub URL
-https://github.com/amineHY/inveesion-dashboard
+
+https://github.com/amineHY/computervision-dashboard.git
 
 ## TODO
+
 - Redis : Database
 - Check the readme
 - Code enhancement: Continue formatting, restructuring the code, ...
+- Update the GIFs
+
 
 ---
 
 ## Features
+
+- Apply Deep learning models for Computer Vision
 - Support for images and videos
 - Loading data from different source: local, web (URL), upload
-- Apply Deep learning models
-- Export KPI to a CSV file
-- Display Analytics
 - It is designer with a modular architecture, where each app is a class
+- Export Analytics KPI to a CSV file
+- Display Analytics
+- Backend and Frontend separated and shipped in their respective docker image
 - Librairies: OpenCV, Python, pandas, Tensorflow, Streamlit
-- Backend and Frontend separated
-- Frontend developed using python and streamlit
-- Backend developed i python and FastAPI
+  - Frontend developed with python and streamlit
+  - Backend developed in python with FastAPI, OpenCV, Tensorflow...
 
 ---
+
+## Architecture
+
+Add and image architecture HERE
+
+![](images/2022-11-01-12-51-37.png)
+
+---
+
 ## Demo
 
 ### Video Applications
@@ -70,8 +84,6 @@ https://github.com/amineHY/inveesion-dashboard
 
 ## Launch the Dashboard
 
-
-
 ### Run the dashboard from source
 
 #### Prepare Python virtual environnement
@@ -95,23 +107,25 @@ https://github.com/amineHY/inveesion-dashboard
   ```
 
 #### Run the dashboard
+
 - First run this command from the terminal
 
-    ```
-    streamlit run main.py
-    ```
+  ```
+  streamlit run main.py
+  ```
 
-    ![](images/2022-10-31-17-16-59.png)
+  ![](images/2022-10-31-17-16-59.png)
 
 - Click on this adresse to open the dashboard on the browser
 
-    ```
-    Local URL: http://localhost:8502
-    ```
+  ```
+  Local URL: http://localhost:8502
+  ```
 
-    ![](images/Peek%202022-10-31%2018-52.gif)
+  ![](images/Peek%202022-10-31%2018-52.gif)
 
 ---
+
 ### Run the dashboard from docker
 
 #### Build the docker image
@@ -125,6 +139,7 @@ docker build -t computervision_dashboard .
 ```
 docker run -it --rm computervision_dashboard:latest streamlit run main.py --server.port 8050
 ```
+
 ![](images/2022-10-31-19-41-52.png)
 
 ---

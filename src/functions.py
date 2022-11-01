@@ -53,10 +53,6 @@ class GUI:
 
     # ----------------------------------------------------------------
 
-    """
-    # 
-    """
-
     def common_config(self, title="🚀 Computer Vision Dashboard 🚀"):
         """This function returns the configuration parameter from User Interface's Sidebar
 
@@ -64,8 +60,10 @@ class GUI:
             title (str, optional): This is the title displayed on the dashboard. Defaults to "Computer Vision Dashboard 🚀".
         """
 
+        # Insert a main title to the Dashboard
         st.title(title)
 
+        # Insert a title of the sidebar
         st.sidebar.title("Configuration")
 
         # Get the application type from the GUI
@@ -99,15 +97,15 @@ class GUI:
             self.frameMax = 1
             self.frameFreq = 1
 
-        # Get the application from the GUI
+        # Get the selectedApp from the GUI
         self.selectedApp = st.sidebar.selectbox(
             "Apply a Computer Vision Model", self.list_of_apps
         )
 
         if self.selectedApp == "Empty":
-            st.sidebar.warning("Select an application from the list")
+            st.sidebar.warning("Please select an application from the list")
 
-        # Update the dictionnary
+        # Update the guiParam dictionary
         self.guiParam.update(
             dict(
                 selectedApp=self.selectedApp,
@@ -127,25 +125,25 @@ class GUI:
 
         if self.selectedApp == "Object Detection":
             st.info(
-                "This application performs object detection using advanced deep learning models. It can detects more than 80 object from COCO dataset."
+                "This application performs object detection using advanced deep learning models. It can detects more than 80 objects (see the full list in COCO dataset)."
             )
             self.sidebarObjectDetection()
 
         elif self.selectedApp == "Face Detection":
             st.info(
-                "This application performs face detection using advanced deep learning models. It can detects face in the image."
+                "This application performs face detection using advanced deep learning models. It can detects faces in images/videos."
             )
             self.sidebarFaceDetection()
 
         elif self.selectedApp == "Face Detection with Blurring":
             st.info(
-                "This application performs face detection using advanced deep learning models. It can detects face in the image. In addition, to preserve privacy, it blur the detected faces to comply with the RGPD."
+                "This application performs face detection using advanced deep learning models. It can detects faces in image/videos. In addition, to preserve privacy, it blurs the detected faces to anonymize."
             )
             self.sidebarFaceDetectionWithBlur()
 
         elif self.selectedApp == "Fire Detection":
             st.info(
-                "This application performs fire detection using advanced deep learning models. "
+                "This application performs fire detection using advanced deep learning models."
             )
             self.sidebarFireDetection()
 
@@ -161,7 +159,7 @@ class GUI:
 
         else:
             st.info(
-                "To start using the dashboard you must first select an Application from the sidebar menu other than Empty"
+                "To run the computer vision dashboard you must first select an Application from the sidebar menu (other than Empty)"
             )
 
     # --------------------------------------------------------------------------
@@ -177,16 +175,15 @@ class GUI:
     # --------------------------------------------------------------------------
 
     def sidebarFaceDetection(self):
-        """ """
+        """
+        This function update the dictionary guiParam (from the self class) with parameters of FaceDetection App
+        """
 
-        # st.sidebar.markdown("### :arrow_right: Model")
-        # --------------------------------------------------------------------------
         model = st.sidebar.selectbox(
             label="Select available model", options=(["MobileNetSSD"])
         )
 
-        st.sidebar.markdown("### :arrow_right: Parameters")
-        # --------------------------------------------------------------------------
+        
         confThresh = st.sidebar.slider(
             "Confidence", value=0.60, min_value=0.0, max_value=1.00, step=0.05
         )
@@ -196,16 +193,15 @@ class GUI:
     # --------------------------------------------------------------------------
 
     def sidebarFaceDetectionWithBlur(self):
-        """ """
+        """
+        This function update the dictionary guiParam (from the self class) with parameters of FaceDetectionWithBlurring App
+        """
 
-        # st.sidebar.markdown("### :arrow_right: Model")
-        # --------------------------------------------------------------------------
         model = st.sidebar.selectbox(
             label="Select available model", options=(["MobileNetSSD"])
         )
 
-        st.sidebar.markdown("### :arrow_right: Parameters")
-        # --------------------------------------------------------------------------
+        
         confThresh = st.sidebar.slider(
             "Confidence", value=0.60, min_value=0.0, max_value=1.00, step=0.05
         )
@@ -214,16 +210,15 @@ class GUI:
     # --------------------------------------------------------------------------
 
     def sidebarFaceMaskDetection(self):
-        """ """
+        """
+        This function update the dictionary guiParam (from the self class) with parameters of FaceMaskDetection App
+        """
 
-        # st.sidebar.markdown("### :arrow_right: Model")
-        # --------------------------------------------------------------------------
         model = st.sidebar.selectbox(
             label="Select available model", options=(["MobileNetSSD"])
         )
 
-        st.sidebar.markdown("### :arrow_right: Parameters")
-        # --------------------------------------------------------------------------
+        
         confThresh = st.sidebar.slider(
             "Confidence", value=0.60, min_value=0.0, max_value=1.00, step=0.05
         )
@@ -233,9 +228,10 @@ class GUI:
     # --------------------------------------------------------------------------
 
     def sidebarObjectDetection(self):
-
-        # st.sidebar.markdown("### :arrow_right: Model")
-        # ------------------------------------------------------#
+        """
+        This function update the dictionary guiParam (from the self class) with parameters of FaceDetection App
+        """
+        
         model = st.sidebar.selectbox(
             label="Select available model",
             options=["Caffe-MobileNetSSD", "Darknet-YOLOv3-tiny", "Darknet-YOLOv3"],
@@ -250,8 +246,7 @@ class GUI:
 
         allowedLabel = ["all"] if len(allowedLabel) == 0 else allowedLabel
 
-        st.sidebar.markdown("### :arrow_right: Model Parameters")
-        # ------------------------------------------------------#
+        
         confThresh = st.sidebar.slider(
             "Confidence", value=0.6, min_value=0.0, max_value=1.0
         )
@@ -275,15 +270,14 @@ class GUI:
     # --------------------------------------------------------------------------
 
     def sidebarFireDetection(self):
-
-        # st.sidebar.markdown("### :arrow_right: Model")
-        # ------------------------------------------------------#
+        """
+        This function update the dictionary guiParam (from the self class) with parameters of FireDetection App
+        """
         model = st.sidebar.selectbox(
             label="Select available model", options=["Darknet-YOLOv3-tiny"]
         )
 
-        # st.sidebar.markdown("### :arrow_right: Model Parameters")
-        # ------------------------------------------------------#
+        
         confThresh = st.sidebar.slider(
             "Confidence", value=0.6, min_value=0.0, max_value=1.0
         )
@@ -302,9 +296,10 @@ class GUI:
     # --------------------------------------------------------------------------
 
     def sidebarCarsCounting(self):
-
-        # st.sidebar.markdown("### :arrow_right: Model")
-        # ------------------------------------------------------#
+        """
+        This function update the dictionary guiParam (from the self class) with parameters of CarCounting App
+        """
+        
         model = st.sidebar.selectbox(
             label="Select available model", options=("Model 1", "Model 2", "Model 3")
         )
@@ -322,8 +317,9 @@ class DataManager:
         }
 
         self.url_demo_images = {
-            "NY-City": "https://s4.thingpic.com/images/8a/Qcc4eLESvtjiGswmQRQ8ynCM.jpeg",
-            "Paris-street": "https://www.discoverwalks.com/blog/wp-content/uploads/2018/08/best-streets-in-paris.jpg",
+            "image NY-City": "https://s4.thingpic.com/images/8a/Qcc4eLESvtjiGswmQRQ8ynCM.jpeg",
+            "image Paris-street": "https://www.discoverwalks.com/blog/wp-content/uploads/2018/08/best-streets-in-paris.jpg",
+            "image people": "https://www.rembrandtmall.co.za/wp-content/uploads/2019/05/people-1.jpg"
         }
 
         self.demo_video_examples = {
@@ -331,11 +327,11 @@ class DataManager:
             "Showroom": guiParam["path_database"] + "showroom.mov",
         }
         self.demo_image_examples = {
-            "COVID-19 Mask": guiParam["path_database"] + "face_mask.jpeg",
-            "Family-picture": guiParam["path_database"] + "family.jpg",
-            "Dog": guiParam["path_database"] + "dog.jpg",
-            "Crosswalk": guiParam["path_database"] + "demo.jpg",
-            "Car on fire": guiParam["path_database"] + "car_on_fire.jpg",
+            "image COVID-19 Mask": guiParam["path_database"] + "face_mask.jpeg",
+            "image Family-picture": guiParam["path_database"] + "family.jpg",
+            "image Dog": guiParam["path_database"] + "dog.jpg",
+            "image Crosswalk": guiParam["path_database"] + "demo.jpg",
+            "image Car on fire": guiParam["path_database"] + "car_on_fire.jpg",
         }
 
         self.image = None
@@ -346,7 +342,6 @@ class DataManager:
         self.data = None
         self.data_byte = None
 
-    # --------------------------------------------------------#
     # --------------------------------------------------------#
 
     def get_video_path(self):
@@ -413,7 +408,7 @@ class DataManager:
     def get_image_path(self):
         # --------------------------------------------#
         if self.guiParam["dataSource"] == "Database":
-            image_path = st.text_input("Enter the image PATH")
+            image_path = st.text_input("Enter the image PATH (for local deployment)")
 
             if image_path == "":
                 image_path_idx = st.selectbox(
@@ -451,6 +446,9 @@ class DataManager:
                     "Or select a URL from the list", list(self.url_demo_images.keys())
                 )
                 url_image = self.url_demo_images[url_image_idx]
+                with open(image_path, "wb") as f:
+                    f.write(urllib.request.urlopen(url_image).read())
+                    return image_path
 
     def load_image_source(self):
         """ """
@@ -719,7 +717,6 @@ def postprocessing_object_detection_df(df):
         _type_: _description_
     """
 
-
     df_ = df.copy()
 
     # Unwrap bboxes
@@ -814,5 +811,3 @@ def disp_analytics(df, df_classes):
         fig.update_xaxes(showgrid=False)
         fig.update_yaxes(showgrid=False)
         st.plotly_chart(fig)
-
-
