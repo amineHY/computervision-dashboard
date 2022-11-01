@@ -728,13 +728,13 @@ def postprocessing_object_detection_df(df):
     df_ = df.copy()
 
     # Unwrap bboxes
-    df_.bboxes = df.bboxes.apply(lambda x: pd.eval(x))
-    df_.confidences = df.confidences.apply(lambda x: pd.eval(x))
-    df_.predClasses = df.predClasses.apply(lambda x: pd.eval(x))
+    df_.bboxes = df.bboxes.apply(pd.eval)
+    df_.confidences = df.confidences.apply(pd.eval)
+    df_.predClasses = df.predClasses.apply(pd.eval)
 
     if "predClasses" in df_.columns:
         df_.loc[:, "counting_obj"] = (
-            df_["predClasses"].apply(lambda x: Counter(x)).values
+            df_["predClasses"].apply(Counter).values
         )
         df_.loc[:, "objectClass"] = (
             df_.loc[:, "counting_obj"].apply(lambda x: list(x.keys())).values

@@ -2,7 +2,7 @@
 """
 Author: Amine Hadj-Youcef
 Email: hadjyoucef.amine@gmail.com
-Github: https://github.com/amineHY/computervision-dashboard.git
+GitHub: https://github.com/amineHY/computervision-dashboard.git
 """
 # ----------------------------------------------------------------#
 
@@ -13,8 +13,6 @@ import os
 import pandas as pd
 import requests
 import streamlit as st
-from plotly.offline import init_notebook_mode, iplot
-from plotly.subplots import make_subplots
 import src.functions as F
 
 print(__doc__)
@@ -70,7 +68,7 @@ def main():
                     files = {"image": ("image", filelike, "image/jpeg")}
                     endpoint = "image-api/"
                     response = requests.request(
-                        "POST", api_url_base + endpoint, params=guiParam, files=files
+                        "POST", api_url_base + endpoint, params=guiParam, files=files, timeout=360
                     )
                 print("[FastAPI Response] : ", response.url)
 
@@ -103,7 +101,7 @@ def main():
                         pd.read_csv(paths["received_data"] + "csv_analytics.csv")
                     )
                 else:
-                    print("\[API] Failure: ", response.status_code)
+                    print("\n[API] Failure: ", response.status_code)
 
         # If the selectApp is for videos
         # ----------------------------------------------------------------#
@@ -120,7 +118,7 @@ def main():
                     files = {"video": ("video", filelike, "video/mp4")}
                     endpoint = "video-api/"
                     response = requests.request(
-                        "POST", api_url_base + endpoint, params=guiParam, files=files
+                        "POST", api_url_base + endpoint, params=guiParam, files=files, timeout=360
                     )
                 print("[FastAPI Response] : ", response.url)
 

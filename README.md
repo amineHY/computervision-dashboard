@@ -1,8 +1,13 @@
+# :rocket: Computer Vision Dashboard :rocket
+
+---
+
+## Table of content
+
 [![Docker image](https://img.shields.io/badge/-Docker%20image-black?logo=docker)](https://hub.docker.com/r/aminehy/computervision_dashboard)
 
-
-
-- [:rocket: Computer Vision Dashboard :rocket:](#rocket-computer-vision-dashboard-rocket)
+- [:rocket: Computer Vision Dashboard :rocket](#rocket-computer-vision-dashboard-rocket)
+  - [Table of content](#table-of-content)
   - [GitHub URL](#github-url)
   - [TODO](#todo)
   - [Features](#features)
@@ -17,20 +22,13 @@
     - [Run the dashboard from docker](#run-the-dashboard-from-docker)
       - [(Optional) Build the docker image](#optional-build-the-docker-image)
       - [Run the dashboard](#run-the-dashboard-1)
-- [Tools](#tools)
-
-# :rocket: Computer Vision Dashboard :rocket:
-
-
-
-
-
+  - [Tools](#tools)
 
 ---
 
 ## GitHub URL
 
-https://github.com/amineHY/computervision-dashboard.git
+Link to this [GitHub Repo](https://github.com/amineHY/computervision-dashboard.git).
 
 ## TODO
 
@@ -60,7 +58,7 @@ https://github.com/amineHY/computervision-dashboard.git
 
 Add and image architecture HERE
 
-![](images/2022-11-01-12-51-37.png)
+![image](images/2022-11-01-12-51-37.png)
 
 ---
 
@@ -69,24 +67,24 @@ Add and image architecture HERE
 ### Video Applications
 
 - Object Detection
-  ![](images/Peek%202022-10-31%2018-44.gif)
+  ![image](images/Peek%202022-10-31%2018-44.gif)
 
 - Heatmap Motion Detection
-  ![](images/Peek%202022-10-31%2018-38.gif)
+  ![image](images/Peek%202022-10-31%2018-38.gif)
 
 ---
 
 ### Image Applications
 
 - Object detection
-  ![](images/2022-10-31-18-29-24.png)
+  ![image](images/2022-10-31-18-29-24.png)
 - Face detection
-  ![](images/2022-10-31-18-32-05.png)
+  ![image](images/2022-10-31-18-32-05.png)
 - Face detection with blurring
-  ![](images/2022-10-31-18-33-04.png)
+  ![image](images/2022-10-31-18-33-04.png)
 
 - Face Mask Detection
-  ![](images/2022-10-31-18-34-00.png)
+  ![image](images/2022-10-31-18-34-00.png)
 
 ---
 
@@ -98,19 +96,22 @@ Add and image architecture HERE
 
 - Create a python virtual environnement using `requirements.txt`
 
-  ```
+  ```shell
   pipenv install -r requirements.txt
   ```
 
   Note the path for the created folder `venv_folder`
-  ![](images/2022-10-31-17-22-27.png)
+  ![image](images/2022-10-31-17-22-27.png)
 
 - Activate the environnement
-  ```
+
+  ```shell
   source venv_folder/bin/activate
   ```
+
   or
-  ```
+
+  ```shell
   pipenv shell
   ```
 
@@ -118,19 +119,16 @@ Add and image architecture HERE
 
 - First run this command from the terminal
 
-  ```
+  ```shell
   streamlit run main.py
   ```
 
-  ![](images/2022-10-31-17-16-59.png)
+  ![image](images/2022-10-31-17-16-59.png)
 
-- Click on this adresse to open the dashboard on the browser
+- Click on this adresse to open the dashboard on the browser  [Local URL](http://localhost:8502)
+  
 
-  ```
-  Local URL: http://localhost:8502
-  ```
-
-  ![](images/Peek%202022-10-31%2018-52.gif)
+  ![image](images/Peek%202022-10-31%2018-52.gif)
 
 ---
 
@@ -139,31 +137,29 @@ Add and image architecture HERE
 #### (Optional) Build the docker image
 
 - Build docker image
-```
+
+```shell
 docker build -t aminehy/computervision-dashboard:latest .
 ```
 
 - Push the docker image to Docker Hub
-```
+
+```shell
 docker login
 docker push aminehy/computervision-dashboard:latest
 ```
 
-
 #### Run the dashboard
 
-```
+```shell
 docker run -it --rm aminehy/computervision-dashboard:latest streamlit run main.py --server.port 8050
 ```
 
-![](images/2022-10-31-19-41-52.png)
+![image](images/2022-10-31-19-41-52.png)
 
 ---
 
-
-# Tools
+## Tools
 
 - Python
-- -Docker
-
-
+- Docker
