@@ -24,10 +24,9 @@ https://github.com/amineHY/computervision-dashboard.git
 
 ## TODO
 
-- Redis : Database
-- Think about a usecase
+- Redis : think about reducing the API call
+- Think about a use case
 - Update the GIFs
-
 
 ---
 
