@@ -1,7 +1,6 @@
 FROM python:3.10.8
 
 LABEL maintainer "Amine Hadj-Youcef  <hadjyoucef.amine@gmail.com>"
-# www.amine-hy.com
 
 # --------------- Copy local code to the container image.
 ENV APP_HOME /app
@@ -21,6 +20,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 COPY . ./
+CMD streamlit run main.py --server.port $PORT --server.enableCORS false
 
 # --------------- Streamlit-specific commands
 
@@ -43,4 +43,3 @@ COPY . ./
 # USER myuser
 
 # --------------- Run the app
-CMD streamlit run main.py --server.port $PORT --server.enableCORS false

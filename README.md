@@ -1,4 +1,6 @@
 - [:rocket: Computer Vision Dashboard :rocket:](#rocket-computer-vision-dashboard-rocket)
+  - [GitHub URL](#github-url)
+  - [TODO](#todo)
   - [Features](#features)
   - [Demo](#demo)
     - [Video Applications](#video-applications)
@@ -13,6 +15,17 @@
 
 
 # :rocket: Computer Vision Dashboard :rocket:
+
+---
+
+
+## GitHub URL
+https://github.com/amineHY/inveesion-dashboard
+
+## TODO
+- Redis : Database
+- Check the readme
+- Code enhancement: Continue formatting, restructuring the code, ...
 
 ---
 
@@ -112,6 +125,6 @@ docker build -t computervision_dashboard .
 ```
 docker run -it --rm computervision_dashboard:latest streamlit run main.py --server.port 8050
 ```
-![](2022-10-31-19-41-52.png)
+![](images/2022-10-31-19-41-52.png)
 
 ---
