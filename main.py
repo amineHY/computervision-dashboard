@@ -85,7 +85,7 @@ def main():
                     values = list(response_json.values())
 
                     # Parse API response and extract data (image + csv)
-                    img_overlay_path = paths["received_data"] + "img_overlay"
+                    img_overlay_path = paths["received_data"] + "img_overlay.png"
                     with open(img_overlay_path, "wb") as im_byte:
                         im_byte.write(base64.b64decode(values[0]))
                     
