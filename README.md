@@ -36,7 +36,6 @@ Link to this [GitHub Repo](https://github.com/amineHY/computervision-dashboard.g
 - Think about a use case
 - Update the GIFs
 - Create a release for the dashboard
-- track logger
 - Add AirFlow
 
 ---
