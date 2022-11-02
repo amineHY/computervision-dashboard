@@ -7,12 +7,7 @@ import plotly.express as px
 from collections import Counter
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-
-
-# import matplotlib.pyplot as plt
-# import cv2 as cv
-# import numpy as np
-# import youtube_dl
+import logging
 
 
 # ----------------------------------------------------------------#
@@ -385,7 +380,7 @@ class DataManager:
 
             if video_url != "":
                 isinstance(video_url, str)
-                print("Downloading ", video_url)
+                logging.info("Downloading ", video_url)
                 ydl_opts = dict(format="bestvideo[height<=480]", outtmpl=video_path)
                 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                     ydl.download([video_url])
@@ -767,69 +762,69 @@ def plot_analytics(df_gold):
             col=2,
         )
 
-    fig.update_layout(
-        height=400,
-        width=900,
-        title_text="Detected Objects from the Video",
-        yaxis=dict(title_text="# of Detection"),
-        xaxis=dict(title_text="Detected Objects"),
-    )
-    fig.update_xaxes(showgrid=False)
-    fig.update_yaxes(showgrid=False)
+        fig.update_layout(
+            height=400,
+            width=900,
+            title_text="Detected Objects from the Video",
+            yaxis=dict(title_text="# of Detection"),
+            xaxis=dict(title_text="Detected Objects"),
+        )
+        fig.update_xaxes(showgrid=False)
+        fig.update_yaxes(showgrid=False)
 
-    st.plotly_chart(fig)
+        st.plotly_chart(fig)
 
 
 
-    # Plot total detection per frame
-    fig = px.scatter(x=df_gold["frameIdx"], y=df_gold["total_object"])
-    fig.update_layout(height=500, width=900, title_text="Total Detection per frame")
-    fig.update_xaxes(showgrid=False)
-    fig.update_yaxes(showgrid=False)
-    st.plotly_chart(fig)
+        # Plot total detection per frame
+        fig = px.scatter(x=df_gold["frameIdx"], y=df_gold["total_object"])
+        fig.update_layout(height=500, width=900, title_text="Total Detection per frame")
+        fig.update_xaxes(showgrid=False)
+        fig.update_yaxes(showgrid=False)
+        st.plotly_chart(fig)
 
-    # Add a subplot per type of object
-    fig = make_subplots(
-        rows=len(df_classes.columns),
-        cols=1,
-        shared_xaxes=True,
-        subplot_titles=list(df_classes.columns),
-    )
-    for idx, feat in enumerate(df_classes.columns):
+        # Add a subplot per type of object
+        fig = make_subplots(
+            rows=len(df_classes.columns),
+            cols=1,
+            shared_xaxes=True,
+            subplot_titles=list(df_classes.columns),
+        )
+        for idx, feat in enumerate(df_classes.columns):
+            fig.add_trace(
+                go.Scatter(
+                    x=df_gold["frameIdx"],
+                    y=df_gold[feat],
+                    mode="markers",
+                    name=feat,
+                ),
+                row=idx + 1,
+                col=1,
+            )
+        tmp = (len(df_classes.columns)) * 300
+        fig.update_layout(height=tmp, width=900, title_text="Objects Filtering")
+        fig.update_xaxes(showgrid=False)
+        fig.update_yaxes(showgrid=False)
+
+        st.plotly_chart(fig)
+
+        st.markdown("## Motion Analysis")
+        # ----------------------------------------------------------------#
+
+        fig = make_subplots(rows=1, cols=1, shared_xaxes=True, vertical_spacing=0.02)
         fig.add_trace(
-            go.Scatter(
-                x=df_gold["frameIdx"],
-                y=df_gold[feat],
-                mode="markers",
-                name=feat,
-            ),
-            row=idx + 1,
+            go.Scatter(x=df_gold["processed_on"], y=df_gold["motion_status"], mode="lines"),
+            row=1,
             col=1,
         )
-    tmp = (len(df_classes.columns)) * 300
-    fig.update_layout(height=tmp, width=900, title_text="Objects Filtering")
-    fig.update_xaxes(showgrid=False)
-    fig.update_yaxes(showgrid=False)
 
-    st.plotly_chart(fig)
-
-    st.markdown("## Motion Analysis")
-    # ----------------------------------------------------------------#
-
-    fig = make_subplots(rows=1, cols=1, shared_xaxes=True, vertical_spacing=0.02)
-    fig.add_trace(
-        go.Scatter(x=df_gold["processed_on"], y=df_gold["motion_status"], mode="lines"),
-        row=1,
-        col=1,
-    )
-
-    fig.update_layout(
-        height=500,
-        width=900,
-        title_text="Detected Motion in the Video",
-        yaxis=dict(title_text="Motion Status"),
-        xaxis=dict(title_text="Timestamp"),
-    )
-    fig.update_xaxes(showgrid=False)
-    fig.update_yaxes(showgrid=False)
-    st.plotly_chart(fig)
+        fig.update_layout(
+            height=500,
+            width=900,
+            title_text="Detected Motion in the Video",
+            yaxis=dict(title_text="Motion Status"),
+            xaxis=dict(title_text="Timestamp"),
+        )
+        fig.update_xaxes(showgrid=False)
+        fig.update_yaxes(showgrid=False)
+        st.plotly_chart(fig)

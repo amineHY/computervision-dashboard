@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1fcc2f78e1c3c8679127ae5c932e025f59fdfb9923b158dc89f79dd0ae90387b"
+            "sha256": "8146bacd62566d2b8190e4b85385152c70c1add2292577c5bbf66f6be061172e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -309,6 +309,22 @@
             "index": "pypi",
             "version": "==1.4.4"
         },
+        "loggings": {
+            "hashes": [
+                "sha256:d5ca165f27bcaae00017b0ac30129ae0691451f8364f95846389ec10d8820725",
+                "sha256:e641949b37c5ba52fa6316d427936f845b5b0b720b9fa5de242ede267e5be8c3"
+            ],
+            "index": "pypi",
+            "version": "==1.0.81"
+        },
+        "loguru": {
+            "hashes": [
+                "sha256:066bd06758d0a513e9836fd9c6b5a75bfb3fd36841f4b996bc60b547a309d41c",
+                "sha256:4e2414d534a2ab57573365b3e6d0234dfb1d84b68b7f3b948e6fb743860a77c3"
+            ],
+            "markers": "python_version >= '3.5'",
+            "version": "==0.6.0"
+        },
         "markupsafe": {
             "hashes": [
                 "sha256:0212a68688482dc52b2d45013df70d169f542b7394fc744c02a57374a4207003",
@@ -429,6 +445,13 @@
             ],
             "index": "pypi",
             "version": "==1.5.1"
+        },
+        "pathlib": {
+            "hashes": [
+                "sha256:6940718dfc3eff4258203ad5021090933e5c04707d5ca8cc9e73c94a7894ea9f",
+                "sha256:f35f95ab8b0f59e6d354090350b44a80a80635d22efdedfa84c7ad1cf0a74147"
+            ],
+            "version": "==1.0.1"
         },
         "pillow": {
             "hashes": [
@@ -802,6 +825,14 @@
             "index": "pypi",
             "version": "==2.1.9"
         },
+        "youtube-dl": {
+            "hashes": [
+                "sha256:bc59e86c5d15d887ac590454511f08ce2c47698d5a82c27bfe27b5d814bbaed2",
+                "sha256:f1336d5de68647e0364a47b3c0712578e59ec76f02048ff5c50ef1c69d79cd55"
+            ],
+            "index": "pypi",
+            "version": "==2021.12.17"
+        },
         "zipp": {
             "hashes": [
                 "sha256:4fcb6f278987a6605757302a6e40e896257570d11c51628968ccb2a47e80c6c1",
@@ -833,7 +864,7 @@
                 "sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7",
                 "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"
             ],
-            "markers": "python_full_version >= '3.6.1' and python_version < '4.0'",
+            "markers": "python_version < '4.0' and python_full_version >= '3.6.1'",
             "version": "==5.10.1"
         },
         "lazy-object-proxy": {
