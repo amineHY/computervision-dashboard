@@ -35,10 +35,8 @@ Link to this [GitHub Repo](https://github.com/amineHY/computervision-dashboard.g
 - Redis : think about reducing the API call
 - Think about a use case
 - Update the GIFs
-- reduce duplicated code in the main file
-- Create a release
-- track logger 
-- API : timestamp to processed_time
+- Create a release for the dashboard
+- track logger
 - Add AirFlow
 
 ---

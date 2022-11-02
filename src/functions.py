@@ -818,7 +818,7 @@ def plot_analytics(df_gold):
 
     fig = make_subplots(rows=1, cols=1, shared_xaxes=True, vertical_spacing=0.02)
     fig.add_trace(
-        go.Scatter(x=df_gold["timestamp"], y=df_gold["motion_status"], mode="lines"),
+        go.Scatter(x=df_gold["processed_on"], y=df_gold["motion_status"], mode="lines"),
         row=1,
         col=1,
     )
