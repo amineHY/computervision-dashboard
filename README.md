@@ -22,7 +22,6 @@
     - [Run the dashboard from docker](#run-the-dashboard-from-docker)
       - [(Optional) Build the docker image](#optional-build-the-docker-image)
       - [Run the dashboard](#run-the-dashboard-1)
-  - [Tools](#tools)
 
 ---
 
@@ -67,17 +66,21 @@ Add and image architecture HERE
 
 ### Video Applications
 
-- Object Detection
+![image](images/Peek%202022-11-06%2019-48_video_app.gif)
+
+<!-- - Object Detection
   ![image](images/Peek%202022-10-31%2018-44.gif)
 
 - Heatmap Motion Detection
-  ![image](images/Peek%202022-10-31%2018-38.gif)
+  ![image](images/Peek%202022-10-31%2018-38.gif) -->
 
 ---
 
 ### Image Applications
 
-- Object detection
+![](images/Peek%202022-11-06%2019-46_image_applications.gif)
+
+<!-- - Object detection
   ![image](images/2022-10-31-18-29-24.png)
 - Face detection
   ![image](images/2022-10-31-18-32-05.png)
@@ -85,7 +88,7 @@ Add and image architecture HERE
   ![image](images/2022-10-31-18-33-04.png)
 
 - Face Mask Detection
-  ![image](images/2022-10-31-18-34-00.png)
+  ![image](images/2022-10-31-18-34-00.png) -->
 
 ---
 
@@ -126,10 +129,6 @@ Add and image architecture HERE
 
   ![image](images/2022-10-31-17-16-59.png)
 
-- Click on this adresse to open the dashboard on the browser [Local URL](http://localhost:8502)
-
-  ![image](images/Peek%202022-10-31%2018-52.gif)
-
 ---
 
 ### Run the dashboard from docker
@@ -156,10 +155,3 @@ docker run -it --rm aminehy/computervision-dashboard:latest streamlit run main.p
 ```
 
 ![image](images/2022-10-31-19-41-52.png)
-
----
-
-## Tools
-
-- Python
-- Docker
