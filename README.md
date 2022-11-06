@@ -9,7 +9,6 @@
 - [:rocket: Computer Vision Dashboard :rocket:](#rocket-computer-vision-dashboard-rocket)
   - [Table of content](#table-of-content)
   - [GitHub URL](#github-url)
-  - [TODO](#todo)
   - [Features](#features)
   - [Architecture](#architecture)
   - [Demo](#demo)
@@ -29,13 +28,6 @@
 
 Link to this [GitHub Repo](https://github.com/amineHY/computervision-dashboard.git).
 
-## TODO
-
-- Redis : think about reducing the API call
-- Think about a use case
-- Update the GIFs
-- Create a release for the dashboard
-- Add AirFlow
 
 ---
 
